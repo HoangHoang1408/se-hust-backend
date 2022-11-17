@@ -10,11 +10,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ACCESS_TOKEN } from './common/constants/constants';
+import { DataModule } from './data/data.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { SMSModule } from './sms/sms.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
-import { DataModule } from './data/data.module';
 
 @Module({
   imports: [
