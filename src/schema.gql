@@ -2,6 +2,45 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type LichSuHoKhau {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  hanhDong: LoaiThayDoiHoKhau!
+  thoiGian: DateTime!
+  hoKhau: HoKhau!
+  nguoiPheDuyet: User!
+  nguoiYeuCau: User!
+  ghiChu: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum LoaiThayDoiHoKhau {
+  TaoMoiHoKhau
+  ThemThanhVien
+  XoaThanhVien
+  ThayDoiChuHo
+  ThayDoiDiaChi
+  ThayDoiVaiTro
+  TachHoKhau
+  XoaHoKhau
+}
+
+type HoKhau {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  soHoKhau: Float!
+  diaChiThuongTru: String!
+  ghiChu: String
+  thanhVien: [User!]!
+  lichSuHoKhau: [LichSuHoKhau!]!
+}
+
 type StoredFile {
   fileUrl: String!
   filePath: String!
@@ -11,33 +50,52 @@ type User {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  canCuocCongDan: String!
-  soDienThoai: String!
-  vaiTro: VaitroNguoiDung!
-  daDangKi: Boolean!
+  canCuocCongDan: String
   matKhau: String
+  soDienThoai: String
+  vaiTroNguoiDung: VaitroNguoiDung!
+  vaiTroThanhVien: VaiTroThanhVien
+  daDangKi: Boolean!
   ten: String!
   gioiTinh: String!
   biDanh: String
   ngaySinh: DateTime!
   noiSinh: String!
   queQuan: String!
-  noiThuongTruTruocDo: String!
-  ngheNghiep: String!
+  noiThuongTruTruocDo: String
+  ngayDangKiThuongTru: DateTime
+  ngheNghiep: String
+  noiLamViec: String
   danToc: String!
   avatar: StoredFile
+  tamTru: String
+  ghiChu: String
+  hoKhau: HoKhau
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 enum VaitroNguoiDung {
   Admin
   NguoiDan
   ToTruong
   ToPho
+}
+
+enum VaiTroThanhVien {
+  ChuHo
+  Vo
+  Chong
+  Con
+  Bo
+  Me
+  Chau
+  Chat
+  ConNuoi
+  Anh
+  Chi
+  Em
+  Ong
+  Ba
+  Khac
 }
 
 type CustomError {
@@ -56,12 +114,28 @@ type LoginOutput {
   accessToken: String
 }
 
+type TachHoKhauOutput {
+  ok: Boolean!
+  error: CustomError
+}
+
+type ThemHoKhauOutput {
+  ok: Boolean!
+  error: CustomError
+}
+
+type XemHoKhauChiTietChoQuanLiOutput {
+  ok: Boolean!
+  error: CustomError
+  hoKhau: HoKhau
+}
+
 type AddUserOutput {
   ok: Boolean!
   error: CustomError
 }
 
-type UserDetailOutput {
+type XemThongTinNguoiDungOutput {
   ok: Boolean!
   error: CustomError
   user: User
@@ -73,28 +147,38 @@ input StoredFileInputType {
 }
 
 type Query {
-  getUserDetail(input: UserDetailInput!): UserDetailOutput!
+  xemThongTinNguoiDung: XemThongTinNguoiDungOutput!
+  xemThongTinNguoiDungChoQuanLi(input: XemThongTinNguoiDungChoQuanLiInput!): XemThongTinNguoiDungOutput!
   login(input: LoginInput!): LoginOutput!
+  xemHoKhauChiTietChoQuanLi(input: XemHoKhauChiTietChoQuanLiInput!): XemHoKhauChiTietChoQuanLiOutput!
+  xemHoKhauChiTietChoNguoiDung: XemHoKhauChiTietChoQuanLiOutput!
 }
 
-input UserDetailInput {
-  id: ID!
+input XemThongTinNguoiDungChoQuanLiInput {
+  userId: ID!
 }
 
 input LoginInput {
-  canCuocCongDan: String!
+  canCuocCongDan: String
   matKhau: String!
+}
+
+input XemHoKhauChiTietChoQuanLiInput {
+  hoKhauId: ID!
 }
 
 type Mutation {
   addUser(input: AddUserInput!): AddUserOutput!
   registerUser(input: RegisterUserInput!): RegisterUserOutput!
+  themHoKhau(input: ThemHoKhauInput!): ThemHoKhauOutput!
+  tachHoKhau(input: TachHoKhauInput!): TachHoKhauOutput!
 }
 
 input AddUserInput {
   id: ID!
-  canCuocCongDan: String!
-  soDienThoai: String!
+  canCuocCongDan: String
+  soDienThoai: String
+  vaiTroThanhVien: VaiTroThanhVien
   daDangKi: Boolean!
   ten: String!
   gioiTinh: String!
@@ -102,14 +186,78 @@ input AddUserInput {
   ngaySinh: DateTime!
   noiSinh: String!
   queQuan: String!
-  noiThuongTruTruocDo: String!
-  ngheNghiep: String!
+  noiThuongTruTruocDo: String
+  ngayDangKiThuongTru: DateTime
+  ngheNghiep: String
+  noiLamViec: String
   danToc: String!
   avatar: StoredFileInputType
+  tamTru: String
+  ghiChu: String
+  hoKhau: HoKhauInputType
+}
+
+input HoKhauInputType {
+  soHoKhau: Float!
+  diaChiThuongTru: String!
+  ghiChu: String
+  thanhVien: [UserInputType!]!
+  lichSuHoKhau: [LichSuHoKhauInputType!]!
+}
+
+input UserInputType {
+  canCuocCongDan: String
+  matKhau: String
+  soDienThoai: String
+  vaiTroNguoiDung: VaitroNguoiDung!
+  vaiTroThanhVien: VaiTroThanhVien
+  daDangKi: Boolean!
+  ten: String!
+  gioiTinh: String!
+  biDanh: String
+  ngaySinh: DateTime!
+  noiSinh: String!
+  queQuan: String!
+  noiThuongTruTruocDo: String
+  ngayDangKiThuongTru: DateTime
+  ngheNghiep: String
+  noiLamViec: String
+  danToc: String!
+  avatar: StoredFileInputType
+  tamTru: String
+  ghiChu: String
+  hoKhau: HoKhauInputType
+}
+
+input LichSuHoKhauInputType {
+  hanhDong: LoaiThayDoiHoKhau!
+  thoiGian: DateTime!
+  hoKhau: HoKhauInputType!
+  nguoiPheDuyet: UserInputType!
+  nguoiYeuCau: UserInputType!
+  ghiChu: String
 }
 
 input RegisterUserInput {
-  canCuocCongDan: String!
+  canCuocCongDan: String
   matKhau: String
   matKhauLapLai: String!
+}
+
+input ThemHoKhauInput {
+  nguoiYeuCauId: ID!
+  diaChiThuongTru: String!
+  thanhVien: [ThanhVien!]!
+}
+
+input ThanhVien {
+  id: ID!
+  vaiTroThanhVien: VaiTroThanhVien!
+}
+
+input TachHoKhauInput {
+  nguoiYeuCauId: ID!
+  hoKhauId: ID!
+  thanhVienHoKhauMoi: [ThanhVien!]!
+  diaChiThuongTruMoi: String!
 }

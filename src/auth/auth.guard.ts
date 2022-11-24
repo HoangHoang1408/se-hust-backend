@@ -32,7 +32,10 @@ export class AuthGuard implements CanActivate {
       const user = await this.userRepo.findOneBy({
         id: +decoded['userId'],
       });
-      if (!user || (!roles.includes(user.vaiTro) && !roles.includes('Any')))
+      if (
+        !user ||
+        (!roles.includes(user.vaiTroNguoiDung) && !roles.includes('Any'))
+      )
         return false;
       gqlContext['user'] = user;
       return true;

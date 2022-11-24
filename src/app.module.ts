@@ -12,6 +12,9 @@ import { AuthModule } from './auth/auth.module';
 import { ACCESS_TOKEN } from './common/constants/constants';
 import { DataModule } from './data/data.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { HoKhau } from './hokhau/entity/hokhau.entity';
+import { LichSuHoKhau } from './hokhau/entity/lichsuhokhau.entity';
+import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
@@ -81,7 +84,7 @@ import { UserModule } from './user/user.module';
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
           }),
-      entities: [User],
+      entities: [User, HoKhau, LichSuHoKhau],
       synchronize: true,
       ...(process.env.NODE_ENV === 'production'
         ? {
@@ -98,6 +101,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     AuthModule,
     DataModule,
+    HokhauModule,
   ],
   controllers: [AppController],
   providers: [AppService],

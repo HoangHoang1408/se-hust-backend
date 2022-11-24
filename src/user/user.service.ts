@@ -5,16 +5,18 @@ import { Repository } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
-  UserDetailInput,
-  UserDetailOutput,
+  XemThongTinNguoiDungChoQuanLiInput,
+  XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
-import { User, VaitroNguoiDung } from './entities/user.entity';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
+
+  // quản lí thêm người dùng
   async addUser(input: AddUserInput): Promise<AddUserOutput> {
     try {
       const user = this.userRepo.findOne({
@@ -32,20 +34,33 @@ export class UserService {
     };
   }
 
-  async getUserDetail(
+  // xem thông tin người dùng cho người dùng thông thường
+  async xemThongTinNguoiDung(
     currentUser: User,
-    { id }: UserDetailInput,
-  ): Promise<UserDetailOutput> {
+  ): Promise<XemThongTinNguoiDungOutput> {
     try {
-      if (
-        ![VaitroNguoiDung.ToPho, VaitroNguoiDung.ToTruong].includes(
-          currentUser.vaiTro,
-        ) &&
-        +currentUser.id !== +id
-      )
-        return createError('Input', 'Bạn không có quyền xem thông tin này');
-      const user = await this.userRepo.findOne({ where: { id } });
-      if (!user) return createError('Input', 'Id không hợp lệ');
+      const user = await this.userRepo.findOne({
+        where: { id: currentUser.id },
+      });
+      if (!user) return createError('Input', 'Người dùng không tồn tại');
+      return {
+        ok: true,
+        user,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  // xem thông tin người dùng cho quản lí
+  async xemThongTinNguoiDungChoQuanLi(
+    input: XemThongTinNguoiDungChoQuanLiInput,
+  ): Promise<XemThongTinNguoiDungOutput> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: input.userId },
+      });
+      if (!user) return createError('Input', 'Người dùng không tồn tại');
       return {
         ok: true,
         user,

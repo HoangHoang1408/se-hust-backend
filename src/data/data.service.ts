@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker/locale/vi';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { range, sample, sampleSize } from 'lodash';
@@ -107,7 +108,7 @@ export class DataService {
       '077',
       '078',
     ];
-    const datas = range(soLuong).map((_) => {
+    const datas = range(soLuong).map(() => {
       const temp = `${sampleSize(alphabetLetters, sample([4, 5, 6])).join(
         '',
       )}, ${sampleSize(alphabetLetters, sample([4, 5, 6])).join('')}, ${sample(
@@ -135,16 +136,19 @@ export class DataService {
           soDienThoai: `${sample(dauSoDT)}${sampleSize(range(0, 10), 7).join(
             '',
           )}`,
-          ngaySinh: new Date(
-            new Date(
-              start.getTime() +
-                Math.random() * (end.getTime() - start.getTime()),
-            ).setHours(0, 0, 0, 0),
-          ),
+          ngaySinh: faker.date.between(start, end),
           gioiTinh: sample(['Nam', 'Nữ']),
+          tamTru: null,
+          noiLamViec: `${sampleSize(alphabetLetters, sample([4, 5, 6])).join(
+            '',
+          )}, ${sampleSize(alphabetLetters, sample([4, 5, 6])).join(
+            '',
+          )}, ${sample(noiSinh)}`,
+          ngayDangKiThuongTru: faker.date.between(start, end),
         }),
       );
     });
+
     await Promise.all(datas);
     console.log('User data inserted!');
   }
