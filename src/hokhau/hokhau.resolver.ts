@@ -7,13 +7,15 @@ import {
   TachHoKhauOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
+  ThemNguoiVaoHoKhauInput,
+  ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
 } from './dto/hokhau.dto';
 import { HokhauService } from './hokhau.service';
 @Resolver()
 export class HokhauResolver {
-  constructor(private readonly hoKhauService: HokhauService) {}
+  constructor(private readonly hoKhauService: HokhauService) { }
 
   @Query(() => XemHoKhauChiTietChoQuanLiOutput)
   @Roles(['ToTruong', 'ToPho'])
@@ -44,6 +46,15 @@ export class HokhauResolver {
     @CurrentUser() nguoiPheDuyet: User,
     @Args('input') input: TachHoKhauInput,
   ) {
-    return this.hoKhauService.tachHoKhau(nguoiPheDuyet,input);
+    return this.hoKhauService.tachHoKhau(nguoiPheDuyet, input);
   }
+  @Mutation(() => ThemNguoiVaoHoKhauOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  themNguoiVaoHoKhau(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: ThemNguoiVaoHoKhauInput,
+  ) {
+    return this.hoKhauService.themNguoiVaoHoKhau(nguoiPheDuyet, input);
+  }
+
 }

@@ -8,6 +8,8 @@ import {
   TachHoKhauOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
+  ThemNguoiVaoHoKhauInput,
+  ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
 } from './dto/hokhau.dto';
@@ -20,7 +22,7 @@ export class HokhauService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(LichSuHoKhau)
     private readonly lichSuHoKhauRepo: Repository<LichSuHoKhau>,
-  ) {}
+  ) { }
   // Tạo số của sổ hộ khẩu
   private generateSoHoKhau(): number {
     //generate random number
@@ -258,10 +260,68 @@ export class HokhauService {
   }
 
   // Thêm người vào hộ khẩu
-  async themNguoiVaoHoKhau() {}
+  async themNguoiVaoHoKhau(nguoiPheDuyet: User, input: ThemNguoiVaoHoKhauInput): Promise<ThemNguoiVaoHoKhauOutput> {
+    try {
+      const {
+        nguoiYeuCauId,
+        nguoiMoi,
+        hoKhauId,
+      } = input;
+      //kiem tra ho khau can vao co ton tai trong khu dan pho khong
+      const hoKhau = await this.hoKhauRepo.findOne({
+        where: {
+          id: hoKhauId,
+        },
+        relations: {
+          thanhVien: true
+        }
+      });
+      if (!hoKhau) return createError('Input', "Ho khau khong hop le");
+      // kiem tra nguoi yeu cau co trong ho khau nay khong
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau || nguoiYeuCau.hoKhauId != hoKhauId) return createError('Input', "Người yêu cầu không hợp lệ");
+      // kiem tra nguoi them vao ton tai khong
+      const thanhVienMoi = await this.userRepo.findOne({
+        where: {
+          id: nguoiMoi.id,
+        },
+      });
+      if (!thanhVienMoi) return createError('Input', "Thành viên này không tồn tại ");
+
+
+      // kiem tra nguoi them vao da co trong ho khau chua
+      if (thanhVienMoi.hoKhauId == hoKhauId) return createError('Input', "Thành viên này đã tồn tại trong hộ khẩu này ");
+      // cap nhat vai tro cua thanh vien moi
+      thanhVienMoi.vaiTroThanhVien = nguoiMoi.vaiTroThanhVien;
+
+      // them thanh vien moi vao ho khau moi
+      hoKhau.thanhVien.push(thanhVienMoi);
+      await this.userRepo.save(thanhVienMoi);
+      await this.hoKhauRepo.save(hoKhau);
+      await this.lichSuHoKhauRepo.save(
+        this.lichSuHoKhauRepo.create({
+          hanhDong: HanhDongHoKhau.ThemThanhVien,
+          thoiGian: new Date(),
+          nguoiPheDuyet,
+          nguoiYeuCau,
+          hoKhau,
+        })
+      )
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
 
   // Xóa hộ khẩu
-  async xoaHoKhau() {}
+  async xoaHoKhau() { }
 
   // Đổi chủ hộ
   async doiChuHo() {}
