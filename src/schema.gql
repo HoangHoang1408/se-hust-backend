@@ -119,6 +119,11 @@ type TachHoKhauOutput {
   error: CustomError
 }
 
+type ThemNguoiVaoHoKhauOutput {
+  ok: Boolean!
+  error: CustomError
+}
+
 type ThemHoKhauOutput {
   ok: Boolean!
   error: CustomError
@@ -172,6 +177,7 @@ type Mutation {
   registerUser(input: RegisterUserInput!): RegisterUserOutput!
   themHoKhau(input: ThemHoKhauInput!): ThemHoKhauOutput!
   tachHoKhau(input: TachHoKhauInput!): TachHoKhauOutput!
+  themNguoiVaoHoKhau(input: ThemNguoiVaoHoKhauInput!): ThemNguoiVaoHoKhauOutput!
 }
 
 input AddUserInput {
@@ -260,4 +266,10 @@ input TachHoKhauInput {
   hoKhauId: ID!
   thanhVienHoKhauMoi: [ThanhVien!]!
   diaChiThuongTruMoi: String!
+}
+
+input ThemNguoiVaoHoKhauInput {
+  nguoiYeuCauId: ID!
+  nguoiMoi: ThanhVien!
+  hoKhauId: ID!
 }

@@ -28,7 +28,7 @@ export class TachHoKhauInput {
 }
 
 @ObjectType()
-export class TachHoKhauOutput extends CoreOutput {}
+export class TachHoKhauOutput extends CoreOutput { }
 
 @InputType()
 export class ThemHoKhauInput {
@@ -41,9 +41,24 @@ export class ThemHoKhauInput {
   @Field(() => [ThanhVien])
   thanhVien: ThanhVien[];
 }
+@InputType()
+export class ThemNguoiVaoHoKhauInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field(() => ThanhVien)
+  nguoiMoi: ThanhVien;
+
+  @Field(() => ID)
+  hoKhauId: number;
+
+}
 
 @ObjectType()
-export class ThemHoKhauOutput extends CoreOutput {}
+export class ThemNguoiVaoHoKhauOutput extends CoreOutput { }
+
+@ObjectType()
+export class ThemHoKhauOutput extends CoreOutput { }
 
 @InputType()
 export class XemHoKhauChiTietChoQuanLiInput {
