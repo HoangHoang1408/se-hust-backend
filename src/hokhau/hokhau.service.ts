@@ -186,27 +186,24 @@ export class HokhauService {
       if (!hoKhauCu) return createError('Input', 'Không tìm thấy hộ khẩu');
 
       // 0. kiểm tra thành viên mới có thuộc hộ khẩu không
-      const idThanhVienMoi = thanhVienHoKhauMoi.map((item) => item.id);
-      const idThanhVienCu = hoKhauCu.thanhVien.map((item) => item.id);
+      const idThanhVienMoi = thanhVienHoKhauMoi.map((item) => +item.id);
+      const idThanhVienCu = hoKhauCu.thanhVien.map((item) => +item.id);
       const thanhVienMoi = await this.userRepo.find({
         where: {
           id: In(idThanhVienMoi),
         },
       });
-
       // 1. kiểm tra người yêu cầu có thuộc hộ khẩu không
-      if (!idThanhVienCu.includes(nguoiYeuCauId))
+      if (!idThanhVienCu.includes(+nguoiYeuCauId))
         return createError('Input', 'Người yêu cầu không thuộc hộ khẩu');
-
       // 2. kiểm tra thành viên mới có thuộc hộ khẩu không
       for (const tv of thanhVienMoi) {
-        if (tv.hoKhauId !== hoKhauId)
+        if (tv.hoKhauId != hoKhauId)
           return createError(
             'Input',
             'Tổn tại thành viên trong hộ khẩu mới không thuộc hộ khẩu cũ',
           );
       }
-
       // 3. kiểm tra chủ hộ có bị tách ra khỏi hộ khẩu không
       for (const tv of thanhVienMoi) {
         if (tv.vaiTroThanhVien === VaiTroThanhVien.ChuHo) {
@@ -216,7 +213,6 @@ export class HokhauService {
           );
         }
       }
-
       // 4. kiểm tra số lượng chủ hộ trong hộ khẩu mới
       const soLuongChuHo = thanhVienHoKhauMoi.reduce(
         (acc, cur) =>
@@ -238,23 +234,22 @@ export class HokhauService {
         thanhVien: thanhVienMoi,
         soHoKhau: this.generateSoHoKhau(),
       });
-
       // 2. Cập nhật lại thành viên trong hộ khẩu cũ
       hoKhauCu.thanhVien = hoKhauCu.thanhVien.filter(
         (tv) => !idThanhVienMoi.includes(tv.id),
       );
-      await this.hoKhauRepo.save([hoKhauCu, hoKhauMoi]);
-
       // 3. Tạo lịch sử thay đổi hộ khẩu
-      await this.lichSuHoKhauRepo.save(
-        this.lichSuHoKhauRepo.create({
-          hanhDong: HanhDongHoKhau.TachHoKhau,
-          thoiGian: new Date(),
-          hoKhau: hoKhauCu,
-          nguoiPheDuyet,
-          nguoiYeuCau,
-        }),
-      );
+      const lichSu = this.lichSuHoKhauRepo.create({
+        hanhDong: HanhDongHoKhau.TachHoKhau,
+        thoiGian: new Date(),
+        hoKhau: hoKhauCu,
+        nguoiPheDuyet,
+        nguoiYeuCau,
+      });
+      // 4. Lưu vào database
+      await this.userRepo.save(thanhVienMoi);
+      await this.hoKhauRepo.save([hoKhauCu, hoKhauMoi]);
+      await this.lichSuHoKhauRepo.save(lichSu);
 
       return {
         ok: true,
@@ -327,4 +322,7 @@ export class HokhauService {
 
   // Xóa hộ khẩu
   async xoaHoKhau() { }
+
+  // Đổi chủ hộ
+  async doiChuHo() {}
 }
