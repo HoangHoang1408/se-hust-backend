@@ -135,6 +135,11 @@ type XemHoKhauChiTietChoQuanLiOutput {
   hoKhau: HoKhau
 }
 
+type AddTamTruOutput {
+  ok: Boolean!
+  error: CustomError
+}
+
 type AddUserOutput {
   ok: Boolean!
   error: CustomError
@@ -174,6 +179,7 @@ input XemHoKhauChiTietChoQuanLiInput {
 
 type Mutation {
   addUser(input: AddUserInput!): AddUserOutput!
+  addTamTru(input: AddTamTruInput!): AddTamTruOutput!
   registerUser(input: RegisterUserInput!): RegisterUserOutput!
   themHoKhau(input: ThemHoKhauInput!): ThemHoKhauOutput!
   tachHoKhau(input: TachHoKhauInput!): TachHoKhauOutput!
@@ -242,6 +248,11 @@ input LichSuHoKhauInputType {
   nguoiPheDuyet: UserInputType!
   nguoiYeuCau: UserInputType!
   ghiChu: String
+}
+
+input AddTamTruInput {
+  nguoiTamTruId: ID!
+  noiTamTruHienTai: String!
 }
 
 input RegisterUserInput {
