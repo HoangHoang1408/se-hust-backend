@@ -21,7 +21,7 @@ export class UserService {
   // quản lí thêm người dùng
   async addUser(input: AddUserInput): Promise<AddUserOutput> {
     try {
-      const user = this.userRepo.findOne({
+      const user = await this.userRepo.findOne({
         where: {
           canCuocCongDan: input.canCuocCongDan,
         },
