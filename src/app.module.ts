@@ -46,7 +46,7 @@ import { UserModule } from './user/user.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       debug: false,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), 'src/generated/schema.gql'),
       playground: true,
       context: ({ req, res }: { req: Request; res: Response }) => {
         return { req, res, [ACCESS_TOKEN]: req.get(ACCESS_TOKEN) };

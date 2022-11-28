@@ -112,7 +112,6 @@ export class User extends CoreEntity {
 
   @Field(() => Date)
   @Column('timestamp without time zone')
-  @IsString()
   ngaySinh: Date;
 
   @Field()
