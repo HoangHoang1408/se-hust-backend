@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
+  EditUserInput,
+  EditUserOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -65,6 +67,37 @@ export class UserService {
         ok: true,
         user,
       };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  async editUser(
+    input: EditUserInput,
+  ): Promise<EditUserOutput>{
+    try {
+      const {
+        nguoiYeuCauId,
+        ten,
+        gioiTinh,
+        biDanh,
+        ngaySinh,
+        noiSinh,
+        queQuan,
+        noiThuongTruTruocDo,
+        ngayDangKiThuongTru,
+        ngheNghiep,
+        noiLamViec,
+        danToc,
+        lyDoThayDoi
+      } = input;
+      const nguoiYeuCau = await this.userRepo.findOne({
+          where: {
+            id: nguoiYeuCauId,
+          },
+        });
+        if (!nguoiYeuCau) return createError('Input', "Người yêu cầu không hợp lệ");
+        await this.userRepo.save(input);
+      return
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
     }

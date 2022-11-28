@@ -4,6 +4,8 @@ import { CurrentUser } from 'src/auth/user.decorator';
 import {
   AddUserInput,
   AddUserOutput,
+  EditUserInput,
+  EditUserOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -33,4 +35,10 @@ export class UserResolver {
   ) {
     return this.userService.xemThongTinNguoiDungChoQuanLi(input);
   }
+  @Mutation(() => EditUserOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  editUser(@Args('input') input: EditUserInput) {
+    return this.userService.editUser(input);
+  }
 }
+

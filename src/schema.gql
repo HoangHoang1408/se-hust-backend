@@ -140,6 +140,11 @@ type AddUserOutput {
   error: CustomError
 }
 
+type EditUserOutput {
+  ok: Boolean!
+  error: CustomError
+}
+
 type XemThongTinNguoiDungOutput {
   ok: Boolean!
   error: CustomError
@@ -174,6 +179,7 @@ input XemHoKhauChiTietChoQuanLiInput {
 
 type Mutation {
   addUser(input: AddUserInput!): AddUserOutput!
+  editUser(input: EditUserInput!): EditUserOutput!
   registerUser(input: RegisterUserInput!): RegisterUserOutput!
   themHoKhau(input: ThemHoKhauInput!): ThemHoKhauOutput!
   tachHoKhau(input: TachHoKhauInput!): TachHoKhauOutput!
@@ -242,6 +248,22 @@ input LichSuHoKhauInputType {
   nguoiPheDuyet: UserInputType!
   nguoiYeuCau: UserInputType!
   ghiChu: String
+}
+
+input EditUserInput {
+  nguoiYeuCauId: ID!
+  ten: String!
+  gioiTinh: String!
+  biDanh: String
+  ngaySinh: DateTime!
+  noiSinh: String!
+  queQuan: String!
+  noiThuongTruTruocDo: String
+  ngayDangKiThuongTru: DateTime
+  ngheNghiep: String
+  noiLamViec: String
+  danToc: String!
+  lyDoThayDoi: String!
 }
 
 input RegisterUserInput {

@@ -15,6 +15,51 @@ export class AddUserInput extends OmitType(User, [
 @ObjectType()
 export class AddUserOutput extends CoreOutput {}
 
+@InputType()
+export class EditUserInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field()
+  ten?: string;
+
+  @Field()
+  gioiTinh?: string;
+
+  @Field({ nullable: true })
+  biDanh?: string;
+
+  @Field(() => Date)
+  ngaySinh?: Date;
+
+  @Field()
+  noiSinh?: string;
+
+  @Field()
+  queQuan?: string;
+
+  @Field({ nullable: true })
+  noiThuongTruTruocDo?: string;
+
+  @Field({ nullable: true })
+  ngayDangKiThuongTru?: Date;
+
+  @Field({ nullable: true })
+  ngheNghiep?: string;
+
+  @Field({ nullable: true })
+  noiLamViec?: string;
+
+  @Field()
+  danToc?: string;
+
+  @Field()
+  lyDoThayDoi: string;
+}
+
+@ObjectType()
+export class EditUserOutput extends CoreOutput {}
+
 @ObjectType()
 export class XemThongTinNguoiDungOutput extends CoreOutput {
   @Field(() => User, { nullable: true })
