@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { omitBy } from 'lodash';
 import { createError } from 'src/common/utils/createError';
 import { Repository } from 'typeorm';
 import {
@@ -88,7 +89,7 @@ export class UserService {
         ngheNghiep,
         noiLamViec,
         danToc,
-        lyDoThayDoi
+        ghiChu
       } = input;
       const nguoiYeuCau = await this.userRepo.findOne({
           where: {
@@ -96,7 +97,17 @@ export class UserService {
           },
         });
         if (!nguoiYeuCau) return createError('Input', "Người yêu cầu không hợp lệ");
-        await this.userRepo.save(input);
+
+        // ghi đè các trường input không bị null vào trong nguoiYeuCau
+
+        const updateUser = {
+          ... nguoiYeuCau,
+          ... omitBy(input, v=> v == null)
+        }
+        this.userRepo.save(updateUser);
+        return {
+          ok: true,
+        }
       return
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

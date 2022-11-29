@@ -1,4 +1,4 @@
-import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType, OmitType, PartialType, PickType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from '../entities/user.entity';
 
@@ -16,45 +16,9 @@ export class AddUserInput extends OmitType(User, [
 export class AddUserOutput extends CoreOutput {}
 
 @InputType()
-export class EditUserInput {
+export class EditUserInput extends PartialType(PickType(User,['ten', 'gioiTinh', 'biDanh', 'ngaySinh', 'noiSinh', 'queQuan', 'noiThuongTruTruocDo', 'ngayDangKiThuongTru', 'ngheNghiep', 'noiLamViec', 'danToc', 'ghiChu'])) {
   @Field(() => ID)
   nguoiYeuCauId: number;
-
-  @Field()
-  ten?: string;
-
-  @Field()
-  gioiTinh?: string;
-
-  @Field({ nullable: true })
-  biDanh?: string;
-
-  @Field(() => Date)
-  ngaySinh?: Date;
-
-  @Field()
-  noiSinh?: string;
-
-  @Field()
-  queQuan?: string;
-
-  @Field({ nullable: true })
-  noiThuongTruTruocDo?: string;
-
-  @Field({ nullable: true })
-  ngayDangKiThuongTru?: Date;
-
-  @Field({ nullable: true })
-  ngheNghiep?: string;
-
-  @Field({ nullable: true })
-  noiLamViec?: string;
-
-  @Field()
-  danToc?: string;
-
-  @Field()
-  lyDoThayDoi: string;
 }
 
 @ObjectType()
