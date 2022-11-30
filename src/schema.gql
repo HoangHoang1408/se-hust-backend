@@ -179,11 +179,11 @@ input XemHoKhauChiTietChoQuanLiInput {
 
 type Mutation {
   addUser(input: AddUserInput!): AddUserOutput!
-  addTamTru(input: AddTamTruInput!): AddTamTruOutput!
   registerUser(input: RegisterUserInput!): RegisterUserOutput!
   themHoKhau(input: ThemHoKhauInput!): ThemHoKhauOutput!
   tachHoKhau(input: TachHoKhauInput!): TachHoKhauOutput!
   themNguoiVaoHoKhau(input: ThemNguoiVaoHoKhauInput!): ThemNguoiVaoHoKhauOutput!
+  addTamTru(input: AddTamTruInput!): AddTamTruOutput!
 }
 
 input AddUserInput {
@@ -250,11 +250,6 @@ input LichSuHoKhauInputType {
   ghiChu: String
 }
 
-input AddTamTruInput {
-  nguoiTamTruId: ID!
-  noiTamTruHienTai: String!
-}
-
 input RegisterUserInput {
   canCuocCongDan: String
   matKhau: String
@@ -283,4 +278,9 @@ input ThemNguoiVaoHoKhauInput {
   nguoiYeuCauId: ID!
   nguoiMoi: ThanhVien!
   hoKhauId: ID!
+}
+
+input AddTamTruInput {
+  nguoiTamTruId: ID!
+  noiTamTruHienTai: String!
 }

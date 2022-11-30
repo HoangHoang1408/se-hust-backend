@@ -14,9 +14,10 @@ import { DataModule } from './data/data.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { HoKhau } from './hokhau/entity/hokhau.entity';
 import { LichSuHoKhau } from './hokhau/entity/lichsuhokhau.entity';
+import { TamTru } from './hokhau/entity/tamtru.entity';
 import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
-import { TamTru } from './user/entities/tamtru.entity';
+
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
