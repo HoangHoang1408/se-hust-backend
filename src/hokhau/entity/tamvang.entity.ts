@@ -5,28 +5,27 @@ import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 
 
-@InputType('TamTruInputType', { isAbstract: true })
+@InputType('TamVangInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
-export class TamTru extends CoreEntity {
+export class TamVang extends CoreEntity {
     @OneToOne(() => User)
     @JoinColumn()
     nguoiPheDuyet: User;
 
     @OneToOne(() => User)
     @JoinColumn()
-    userTamTru: User;
+    userTamVang: User;
    
     @Field(()=>Date)
     @Column({ nullable: true })
-    ngayHetHanTamTru:Date;
+    ngayBatDauTamVang:Date;
 
-    @Field({ nullable: true })
-    @Column({ nullable: true })
-    ghiChu?: string;
+    @Field()
+    @Column()
+    lyDoTamVang?: string;
      
     @Field({ nullable: true })
     @Column({ nullable: true })
-    noiTamTruHienTai: string;
-
+    diaChiNoiDen: string;
 }
