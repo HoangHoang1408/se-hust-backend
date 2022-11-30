@@ -1,5 +1,6 @@
 import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
+import { TamTru } from '../../hokhau/entity/tamtru.entity';
 import { User } from '../entities/user.entity';
 
 @InputType()
@@ -10,10 +11,10 @@ export class AddUserInput extends OmitType(User, [
   'hashPassword',
   'matKhau',
   'vaiTroNguoiDung',
-]) {}
+]) { }
 
 @ObjectType()
-export class AddUserOutput extends CoreOutput {}
+export class AddUserOutput extends CoreOutput { }
 
 @ObjectType()
 export class XemThongTinNguoiDungOutput extends CoreOutput {

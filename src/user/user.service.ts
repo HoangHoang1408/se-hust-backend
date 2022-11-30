@@ -13,15 +13,17 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
-  ) {}
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+
+  ) { }
 
   // quản lí thêm người dùng
   async addUser(input: AddUserInput): Promise<AddUserOutput> {
     try {
       const user = await this.userRepo.findOne({
         where: {
-          canCuocCongDan: input.canCuocCongDan,
+           canCuocCongDan: input.canCuocCongDan,
         },
       });
       if (user) return createError('Input', 'Đã tồn tại căn cước công dân này');

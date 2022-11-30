@@ -12,7 +12,7 @@ import { UserService } from './user.service';
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Mutation(() => AddUserOutput)
   @Roles(['ToTruong', 'ToPho'])

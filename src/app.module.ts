@@ -14,8 +14,10 @@ import { DataModule } from './data/data.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { HoKhau } from './hokhau/entity/hokhau.entity';
 import { LichSuHoKhau } from './hokhau/entity/lichsuhokhau.entity';
+import { TamTru } from './hokhau/entity/tamtru.entity';
 import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
+
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
@@ -75,27 +77,27 @@ import { UserModule } from './user/user.module';
       type: 'postgres',
       ...(process.env.DATABASE_URL
         ? {
-            url: process.env.DATABASE_URL,
-          }
+          url: process.env.DATABASE_URL,
+        }
         : {
-            host: process.env.DATABASE_HOST,
-            port: +process.env.DATABASE_PORT,
-            username: process.env.DATABASE_USERNAME,
-            password: process.env.DATABASE_PASSWORD,
-            database: process.env.DATABASE_NAME,
-          }),
-      entities: [User, HoKhau, LichSuHoKhau],
+          host: process.env.DATABASE_HOST,
+          port: +process.env.DATABASE_PORT,
+          username: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD,
+          database: process.env.DATABASE_NAME,
+        }),
+      entities: [User, HoKhau, LichSuHoKhau, TamTru],
       synchronize: true,
       ...(process.env.NODE_ENV === 'production'
         ? {
-            ssl: true,
-            extra: {
-              ssl: {
-                require: true,
-                rejectUnauthorized: false,
-              },
+          ssl: true,
+          extra: {
+            ssl: {
+              require: true,
+              rejectUnauthorized: false,
             },
-          }
+          },
+        }
         : {}),
     }),
     UserModule,
@@ -106,4 +108,4 @@ import { UserModule } from './user/user.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -12,9 +12,9 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
-} from './dto/hokhau.dto';
-import { HoKhau } from './entity/hokhau.entity';
-import { HanhDongHoKhau, LichSuHoKhau } from './entity/lichsuhokhau.entity';
+} from '../dto/hokhau.dto';
+import { HoKhau } from '../entity/hokhau.entity';
+import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
 @Injectable()
 export class HokhauService {
   constructor(
@@ -324,5 +324,5 @@ export class HokhauService {
   async xoaHoKhau() { }
 
   // Đổi chủ hộ
-  async doiChuHo() {}
+  async doiChuHo() { }
 }

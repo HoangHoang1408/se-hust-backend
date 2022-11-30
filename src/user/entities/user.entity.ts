@@ -22,6 +22,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToOne,
   RelationId,
 } from 'typeorm';
 
