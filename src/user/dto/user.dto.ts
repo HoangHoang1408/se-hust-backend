@@ -20,7 +20,19 @@ export class AddUserInput extends OmitType(User, [
 export class AddUserOutput extends CoreOutput {}
 
 @InputType()
-export class EditUserInput extends PartialType(PickType(User,['ten', 'gioiTinh', 'biDanh', 'ngaySinh', 'noiSinh', 'queQuan', 'noiThuongTruTruocDo', 'ngayDangKiThuongTru', 'ngheNghiep', 'noiLamViec', 'danToc', 'ghiChu'])) {
+export class EditUserInput extends OmitType(User, [
+  'checkPassword',
+  'createdAt',
+  'updatedAt',
+  'hashPassword',
+  'matKhau',
+  'vaiTroNguoiDung',
+  'canCuocCongDan',
+  'daDangKi',
+  'hoKhau',
+  'hoKhauId',
+  'tamTru',
+]){
   @Field(() => ID)
   nguoiYeuCauId: number;
 }

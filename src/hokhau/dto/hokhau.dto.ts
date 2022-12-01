@@ -94,5 +94,5 @@ export class XemLichSuThayDoiNhanKhauInput {
 @ObjectType()
 export class XemLichSuThayDoiNhanKhauOutput extends CoreOutput {
   @Field(() => LichSuHoKhau, { nullable: true })
-  lichSuHoKhau?: LichSuHoKhau;
+  lichSuHoKhau?: LichSuHoKhau[];
 }

@@ -399,11 +399,12 @@ export class HokhauService {
     input: XemLichSuThayDoiNhanKhauInput,
   ): Promise<XemLichSuThayDoiNhanKhauOutput> {
     try {
-      const lichSuHoKhau = await this.lichSuHoKhauRepo.findOne({
-        where: {
+      const lichSuHoKhau = await this.lichSuHoKhauRepo.find({
+        where:{
+         hoKhau:{
           id: input.hoKhauId,
         },
-      });
+      }});
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
       return {
         ok: true,
