@@ -49,9 +49,9 @@ export class TamTruService {
             await this.tamTruRepo.save(this.tamTruRepo.create({
                 nguoiPheDuyet,
                 userTamTru: user,
-                ngayHetHanTamTru:Date.now(),
+                ngayHetHanTamTru: Date.now(),
                 noiTamTruHienTai,
-            }))
+            }),);
             return {
                 ok: true,
             };
