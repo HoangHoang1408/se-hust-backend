@@ -114,6 +114,13 @@ type LoginOutput {
   accessToken: String
 }
 
+type TamTru {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  noiTamTruHienTai: String
+}
+
 type TachHoKhauOutput {
   ok: Boolean!
   error: CustomError
@@ -140,6 +147,12 @@ type AddTamTruOutput {
   error: CustomError
 }
 
+type xemThongTinTamTruOutput {
+  ok: Boolean!
+  error: CustomError
+  tamtru: TamTru
+}
+
 type AddUserOutput {
   ok: Boolean!
   error: CustomError
@@ -162,6 +175,7 @@ type Query {
   login(input: LoginInput!): LoginOutput!
   xemHoKhauChiTietChoQuanLi(input: XemHoKhauChiTietChoQuanLiInput!): XemHoKhauChiTietChoQuanLiOutput!
   xemHoKhauChiTietChoNguoiDung: XemHoKhauChiTietChoQuanLiOutput!
+  xemThongTinTamTru: xemThongTinTamTruOutput!
 }
 
 input XemThongTinNguoiDungChoQuanLiInput {
