@@ -81,18 +81,6 @@ export class UserService {
     try {
       const {
         nguoiYeuCauId,
-        ten,
-        gioiTinh,
-        biDanh,
-        ngaySinh,
-        noiSinh,
-        queQuan,
-        noiThuongTruTruocDo,
-        ngayDangKiThuongTru,
-        ngheNghiep,
-        noiLamViec,
-        danToc,
-        ghiChu
       } = input;
       const nguoiYeuCau = await this.userRepo.findOne({
           where: {
