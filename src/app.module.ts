@@ -15,6 +15,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { HoKhau } from './hokhau/entity/hokhau.entity';
 import { LichSuHoKhau } from './hokhau/entity/lichsuhokhau.entity';
 import { TamTru } from './hokhau/entity/tamtru.entity';
+import { TamVang } from './hokhau/entity/tamvang.entity';
 import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
 
@@ -86,7 +87,7 @@ import { UserModule } from './user/user.module';
           password: process.env.DATABASE_PASSWORD,
           database: process.env.DATABASE_NAME,
         }),
-      entities: [User, HoKhau, LichSuHoKhau, TamTru],
+      entities: [User, HoKhau, LichSuHoKhau, TamTru, TamVang],
       synchronize: true,
       ...(process.env.NODE_ENV === 'production'
         ? {

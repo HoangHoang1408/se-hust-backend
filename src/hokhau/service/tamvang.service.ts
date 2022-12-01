@@ -14,7 +14,7 @@ export class TamVangService {
     ) { }
 
 
-    //    quản lý thêm tạm trú
+    //    quản lý thêm tạm vắng
     async addTamVang(
         nguoiPheDuyet: User,
         input: AddTamVangInput,
@@ -34,18 +34,25 @@ export class TamVangService {
 
             // kiểm tra người này có phải đã có hổ khẩu cư trú ở đây chưa
             if (!user.hoKhauId) return createError('Input', "Người này không thường trú trong khu dân phố này");
-          
+
             // kiểm tra người đó đã tồn tại trong bảng tạm vắng hay chưa
             const TamVang = await this.TamVangRepo.findOne({
                 where: {
-                   userTamVang:{
-                    id:user.id,
-                   }
+                    nguoiTamVang: {
+                        id: user.id,
+                    }
                 },
             });
-            if (!TamVang) return createError('Input', "Người này đã được thêm tạm trú");
+            if (!TamVang) return createError('Input', "Người này đã được thêm tạm vắng");
 
-           
+            await this.TamVangRepo.save(this.TamVangRepo.create({
+                nguoiPheDuyet,
+                nguoiTamVang: user,
+                ngayBatDauTamVang: new Date(),
+                lyDoTamVang,
+                diaChiNoiDen,
+            }),
+            );
             return {
                 ok: true,
             };
@@ -59,12 +66,12 @@ export class TamVangService {
         try {
             const tamvang = await this.TamVangRepo.findOne({
                 where: {
-                    userTamVang: {
+                    nguoiTamVang: {
                         id: currentUser.id
                     }
                 },
             });
-            if (!tamvang) return createError('Input', 'Người dùng không tồn tại trong bảng tạm trú');
+            if (!tamvang) return createError('Input', 'Người dùng không tồn tại trong bảng tạm vắng');
             return {
                 ok: true,
             };

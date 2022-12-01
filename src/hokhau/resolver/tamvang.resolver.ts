@@ -2,25 +2,24 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/auth/role.decorator";
 import { CurrentUser } from "src/auth/user.decorator";
 import { User } from "src/user/entities/user.entity";
-import { AddTamTruInput, AddTamTruOutput, xemThongTinTamTruOutput } from "../dto/tamtru.dto";
-import { AddTamVangInput } from "../dto/tamvang.dto";
-import { TamTru } from "../entity/tamtru.entity";
+import { AddTamVangInput, AddTamVangOutput, xemThongTinTamVangOutput } from "../dto/tamvang.dto";
 import { TamVang } from "../entity/tamvang.entity";
 import { TamVangService } from "../service/tamvang.service";
 
 @Resolver(() => TamVang)
-export class TamTruResolver {
+export class TamVangResolver {
     constructor(private readonly tamVangService: TamVangService) { }
 
-    @Mutation(() => AddTamTruOutput)
+    @Mutation(() => AddTamVangOutput)
     @Roles(['ToTruong', 'ToPho'])
-    async addTamTru(@CurrentUser() nguoiPheDuyet: User,
+    async addTamVang(@CurrentUser() nguoiPheDuyet: User,
         @Args('input') input: AddTamVangInput,) {
         return this.tamVangService.addTamVang(nguoiPheDuyet, input);
     }
-    @Query(() => xemThongTinTamTruOutput)
+    
+    @Query(() => xemThongTinTamVangOutput)
     @Roles(['Any'])
-    xemThongTinTamTru(@CurrentUser() user: User) {
+    xemThongTinTamVang(@CurrentUser() user: User) {
         return this.tamVangService.xemThongTinTamVang(user);
     }
 }

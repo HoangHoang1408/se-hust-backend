@@ -1,7 +1,7 @@
 
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 
 
@@ -9,23 +9,23 @@ import { User } from "../../user/entities/user.entity";
 @ObjectType()
 @Entity()
 export class TamVang extends CoreEntity {
-    @OneToOne(() => User)
+    @ManyToOne(() => User)
     @JoinColumn()
     nguoiPheDuyet: User;
 
     @OneToOne(() => User)
     @JoinColumn()
-    userTamVang: User;
-   
-    @Field(()=>Date)
+    nguoiTamVang: User;
+
+    @Field(() => Date)
     @Column({ nullable: true })
-    ngayBatDauTamVang:Date;
+    ngayBatDauTamVang?: Date;
 
     @Field()
     @Column()
     lyDoTamVang?: string;
-     
+
     @Field({ nullable: true })
     @Column({ nullable: true })
-    diaChiNoiDen: string;
+    diaChiNoiDen?: string;
 }
