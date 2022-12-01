@@ -1,6 +1,9 @@
 import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
-import { CoreOutput } from 'src/common/dto/output.dto';
-import { TamTru } from '../../hokhau/entity/tamtru.entity';
+import {
+  CoreOutput,
+  PaginationInput,
+  PaginationOutput,
+} from 'src/common/dto/output.dto';
 import { User } from '../entities/user.entity';
 
 @InputType()
@@ -26,4 +29,25 @@ export class XemThongTinNguoiDungOutput extends CoreOutput {
 export class XemThongTinNguoiDungChoQuanLiInput {
   @Field(() => ID)
   userId: number;
+}
+
+@InputType()
+export class XemDanhSachNguoiDungInput {
+  @Field(() => PaginationInput)
+  paginationInput: PaginationInput;
+
+  @Field({ nullable: true })
+  hoTen?: string;
+
+  @Field({ nullable: true })
+  canCuocCongDan?: string;
+}
+
+@ObjectType()
+export class XemDanhSachNguoiDungOutput extends CoreOutput {
+  @Field(() => PaginationOutput, { nullable: true })
+  paginationOutput?: PaginationOutput;
+
+  @Field(() => [User], { nullable: true })
+  users?: User[];
 }

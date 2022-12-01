@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
+  XemDanhSachNguoiDungInput,
+  XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -66,6 +69,42 @@ export class UserService {
       return {
         ok: true,
         user,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  // xem danh sach nguoi dung cho quan li
+  async xemDanhSachNguoiDung(
+    input: XemDanhSachNguoiDungInput,
+  ): Promise<XemDanhSachNguoiDungOutput> {
+    try {
+      const {
+        paginationInput: { page, resultsPerPage },
+        hoTen,
+        canCuocCongDan,
+      } = input;
+      const [users, totalResults] = await this.userRepo.findAndCount({
+        where: {
+          ten: hoTen ? ILike(`%${hoTen}%`) : undefined,
+          canCuocCongDan: canCuocCongDan
+            ? ILike(`%${canCuocCongDan}%`)
+            : undefined,
+        },
+        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
+        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        order: {
+          updatedAt: SortOrder.DESC,
+        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+      });
+      return {
+        ok: true,
+        users,
+        paginationOutput: {
+          totalResults,
+          totalPages: Math.ceil(totalResults / resultsPerPage),
+        },
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
