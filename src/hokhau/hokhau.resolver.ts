@@ -5,6 +5,8 @@ import { User } from 'src/user/entities/user.entity';
 import {
   TachHoKhauInput,
   TachHoKhauOutput,
+  ThayDoiChuHoInput,
+  ThayDoiChuHoOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
   ThemNguoiVaoHoKhauInput,
@@ -15,7 +17,7 @@ import {
 import { HokhauService } from './hokhau.service';
 @Resolver()
 export class HokhauResolver {
-  constructor(private readonly hoKhauService: HokhauService) { }
+  constructor(private readonly hoKhauService: HokhauService) {}
 
   @Query(() => XemHoKhauChiTietChoQuanLiOutput)
   @Roles(['ToTruong', 'ToPho'])
@@ -56,5 +58,12 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.themNguoiVaoHoKhau(nguoiPheDuyet, input);
   }
-
+  @Mutation(() => ThayDoiChuHoOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  thayDoiChuHo(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: ThayDoiChuHoInput,
+  ) {
+    return this.hoKhauService.thayDoiChuHo(nguoiPheDuyet, input);
+  }
 }

@@ -70,3 +70,16 @@ export class XemHoKhauChiTietChoQuanLiOutput extends CoreOutput {
   @Field(() => HoKhau, { nullable: true })
   hoKhau?: HoKhau;
 }
+@InputType()
+export class ThayDoiChuHoInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field(() => ID)
+  hoKhauId: number;
+
+  @Field(() => [ThanhVien])
+  thayDoiVaiTroThanhVien: ThanhVien[];
+}
+@ObjectType()
+export class ThayDoiChuHoOutput extends CoreOutput {}
