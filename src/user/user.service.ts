@@ -19,7 +19,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
 
-  ) { }
+  ) {}
 
   // quản lí thêm người dùng
   async addUser(input: AddUserInput): Promise<AddUserOutput> {

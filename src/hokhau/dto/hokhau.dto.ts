@@ -28,7 +28,7 @@ export class TachHoKhauInput {
 }
 
 @ObjectType()
-export class TachHoKhauOutput extends CoreOutput { }
+export class TachHoKhauOutput extends CoreOutput {}
 
 @InputType()
 export class ThemHoKhauInput {
@@ -55,10 +55,10 @@ export class ThemNguoiVaoHoKhauInput {
 }
 
 @ObjectType()
-export class ThemNguoiVaoHoKhauOutput extends CoreOutput { }
+export class ThemNguoiVaoHoKhauOutput extends CoreOutput {}
 
 @ObjectType()
-export class ThemHoKhauOutput extends CoreOutput { }
+export class ThemHoKhauOutput extends CoreOutput {}
 
 @InputType()
 export class XemHoKhauChiTietChoQuanLiInput {
@@ -83,5 +83,5 @@ export class XoaNguoiKhoiHoKhauInput {
   hoKhauId: number;
 }
 @ObjectType()
-export class XoaNguoiKhoiHoKhauOutput extends CoreOutput { }
+export class XoaNguoiKhoiHoKhauOutput extends CoreOutput {}
 
