@@ -33,7 +33,7 @@ export class TamTruService {
 
             // kiểm tra người này có phải đã có hổ khẩu cư trú ở đây chưa
             if (user.hoKhauId) return createError('Input', "Người này đang thường trú trong khu dân phố này");
-          
+
             // kiểm tra người đó đã tồn tại trong bảng tạm trú hay chưa
             const tamtru = await this.tamTruRepo.findOne({
                 where: {
@@ -42,23 +42,21 @@ export class TamTruService {
                     }
                 },
             });
-            const ngayHetHanTamTru= new Date(tamtru.createdAt.getTime()+365*1000*3600*24)
+            const ngayHetHanTamTru = new Date(Date.now() + 365 * 1000 * 3600 * 24);
             if (!tamtru) return createError('Input', "Người này đã được thêm tạm trú");
-            
-            // xem người phê duyệt có phải là tổ trường or tổ phó không
-            if (nguoiPheDuyet.vaiTroNguoiDung != 'ToTruong')
-                if (nguoiPheDuyet.vaiTroNguoiDung != 'ToPho')
-                    return createError('Input', "Người phê duyệt không hợp lệ");
+
+
             await this.tamTruRepo.save(this.tamTruRepo.create({
                 nguoiPheDuyet,
                 userTamTru: user,
-                ngayHetHanTamTru,
+                ngayHetHanTamTru:Date.now(),
                 noiTamTruHienTai,
             }))
             return {
                 ok: true,
             };
         } catch (error) {
+            console.log(error);
             return createError('Input', 'Lỗi server,thử lại sau');
         }
     }

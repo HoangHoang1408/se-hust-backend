@@ -16,15 +16,15 @@ export class TamTru extends CoreEntity {
     @OneToOne(() => User)
     @JoinColumn()
     userTamTru: User;
-   
-    @Field(()=>Date)
+
+    @Field(() => Date)
     @Column({ nullable: true })
-    ngayHetHanTamTru:Date;
+    ngayHetHanTamTru: Date;
 
     @Field({ nullable: true })
     @Column({ nullable: true })
     ghiChu?: string;
-     
+
     @Field({ nullable: true })
     @Column({ nullable: true })
     noiTamTruHienTai: string;
