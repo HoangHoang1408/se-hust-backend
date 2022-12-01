@@ -4,6 +4,8 @@ import { CurrentUser } from 'src/auth/user.decorator';
 import {
   AddUserInput,
   AddUserOutput,
+  XemDanhSachNguoiDungInput,
+  XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -32,5 +34,11 @@ export class UserResolver {
     @Args('input') input: XemThongTinNguoiDungChoQuanLiInput,
   ) {
     return this.userService.xemThongTinNguoiDungChoQuanLi(input);
+  }
+
+  @Query(() => XemDanhSachNguoiDungOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xemDanhSachNguoiDung(@Args('input') input: XemDanhSachNguoiDungInput) {
+    return this.userService.xemDanhSachNguoiDung(input);
   }
 }
