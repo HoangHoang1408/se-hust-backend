@@ -16,4 +16,4 @@ import { TamVangService } from './service/tamvang.service';
   providers: [HokhauService, HokhauResolver, TamTruResolver, TamTruService, TamVangService, TamVangResolver],
   imports: [TypeOrmModule.forFeature([HoKhau, User, LichSuHoKhau, TamTru, TamVang])],
 })
-export class HokhauModule { }
+export class HokhauModule {}

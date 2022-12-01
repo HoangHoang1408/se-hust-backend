@@ -11,7 +11,7 @@ export class TamVangService {
     constructor(
         @InjectRepository(TamVang) private readonly TamVangRepo: Repository<TamVang>,
         @InjectRepository(User) private readonly userRepo: Repository<User>,
-    ) { }
+    ) {}
 
 
     //    quản lý thêm tạm vắng

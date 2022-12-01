@@ -17,7 +17,7 @@ import {
 import { HokhauService } from '../service/hokhau.service';
 @Resolver()
 export class HokhauResolver {
-  constructor(private readonly hoKhauService: HokhauService) { }
+  constructor(private readonly hoKhauService: HokhauService) {}
 
   @Query(() => XemHoKhauChiTietChoQuanLiOutput)
   @Roles(['ToTruong', 'ToPho'])

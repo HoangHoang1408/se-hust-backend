@@ -11,7 +11,7 @@ export class TamTruService {
     constructor(
         @InjectRepository(TamTru) private readonly tamTruRepo: Repository<TamTru>,
         @InjectRepository(User) private readonly userRepo: Repository<User>,
-    ) { }
+    ) {}
 
 
     //    quản lý thêm tạm trú

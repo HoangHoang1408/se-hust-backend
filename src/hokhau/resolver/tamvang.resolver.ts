@@ -8,7 +8,7 @@ import { TamVangService } from "../service/tamvang.service";
 
 @Resolver(() => TamVang)
 export class TamVangResolver {
-    constructor(private readonly tamVangService: TamVangService) { }
+    constructor(private readonly tamVangService: TamVangService) {}
 
     @Mutation(() => AddTamVangOutput)
     @Roles(['ToTruong', 'ToPho'])
