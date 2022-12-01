@@ -13,8 +13,8 @@ import {
   XemHoKhauChiTietChoQuanLiOutput,
   XoaNguoiKhoiHoKhauInput,
   XoaNguoiKhoiHoKhauOutput,
-} from './dto/hokhau.dto';
-import { HokhauService } from './hokhau.service';
+} from '../dto/hokhau.dto';
+import { HokhauService } from '../service/hokhau.service';
 @Resolver()
 export class HokhauResolver {
   constructor(private readonly hoKhauService: HokhauService) { }

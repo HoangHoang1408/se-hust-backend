@@ -43,7 +43,7 @@ export class TamVangService {
                     }
                 },
             });
-            if (!TamVang) return createError('Input', "Người này đã được thêm tạm vắng");
+            if (TamVang) return createError('Input', "Người này đã được thêm tạm vắng");
 
             await this.TamVangRepo.save(this.TamVangRepo.create({
                 nguoiPheDuyet,
