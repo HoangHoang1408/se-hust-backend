@@ -70,3 +70,18 @@ export class XemHoKhauChiTietChoQuanLiOutput extends CoreOutput {
   @Field(() => HoKhau, { nullable: true })
   hoKhau?: HoKhau;
 }
+
+@InputType()
+export class XoaNguoiKhoiHoKhauInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field(() => ID)
+  nguoiCanXoaId: number;
+
+  @Field(() => ID)
+  hoKhauId: number;
+}
+@ObjectType()
+export class XoaNguoiKhoiHoKhauOutput extends CoreOutput { }
+
