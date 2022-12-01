@@ -67,6 +67,4 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.xoaNguoiKhoiHoKhau(nguoiPheDuyet, input);
   }
-
-
 }

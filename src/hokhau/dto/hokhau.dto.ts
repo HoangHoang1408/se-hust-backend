@@ -51,7 +51,6 @@ export class ThemNguoiVaoHoKhauInput {
 
   @Field(() => ID)
   hoKhauId: number;
-
 }
 
 @ObjectType()
@@ -84,4 +83,3 @@ export class XoaNguoiKhoiHoKhauInput {
 }
 @ObjectType()
 export class XoaNguoiKhoiHoKhauOutput extends CoreOutput {}
-

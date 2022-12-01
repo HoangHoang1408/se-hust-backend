@@ -14,10 +14,10 @@ export class AddUserInput extends OmitType(User, [
   'hashPassword',
   'matKhau',
   'vaiTroNguoiDung',
-]) { }
+]) {}
 
 @ObjectType()
-export class AddUserOutput extends CoreOutput { }
+export class AddUserOutput extends CoreOutput {}
 
 @ObjectType()
 export class XemThongTinNguoiDungOutput extends CoreOutput {

@@ -18,7 +18,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-
   ) {}
 
   // quản lí thêm người dùng
@@ -26,7 +25,7 @@ export class UserService {
     try {
       const user = await this.userRepo.findOne({
         where: {
-           canCuocCongDan: input.canCuocCongDan,
+          canCuocCongDan: input.canCuocCongDan,
         },
       });
       if (user) return createError('Input', 'Đã tồn tại căn cước công dân này');
