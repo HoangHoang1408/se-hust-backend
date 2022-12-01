@@ -3,6 +3,8 @@ import { Roles } from 'src/auth/role.decorator';
 import { CurrentUser } from 'src/auth/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import {
+  DangKyTamVangInput,
+  DangKyTamVangOutput,
   TachHoKhauInput,
   TachHoKhauOutput,
   ThayDoiChuHoInput,
@@ -13,6 +15,8 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
+  XoaDangKyTamVangInput,
+  XoaDangKyTamVangOutput,
 } from './dto/hokhau.dto';
 import { HokhauService } from './hokhau.service';
 @Resolver()
@@ -65,5 +69,21 @@ export class HokhauResolver {
     @Args('input') input: ThayDoiChuHoInput,
   ) {
     return this.hoKhauService.thayDoiChuHo(nguoiPheDuyet, input);
+  }
+  @Mutation(() => DangKyTamVangOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  dangKyTamVang(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: DangKyTamVangInput,
+  ) {
+    return this.hoKhauService.dangKyTamVang(nguoiPheDuyet, input);
+  }
+  @Mutation(() => XoaDangKyTamVangOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xoaDangKyTamVang(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: XoaDangKyTamVangInput,
+  ) {
+    return this.hoKhauService.xoaDangKyTamVang(nguoiPheDuyet, input);
   }
 }

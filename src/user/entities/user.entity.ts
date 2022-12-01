@@ -152,6 +152,10 @@ export class User extends CoreEntity {
   @Column({ nullable: true })
   tamTru?: string;
 
+  @Field()
+  @Column({default: false})
+  tamVang: boolean;
+
   @Field({ nullable: true })
   @Column({ nullable: true })
   ghiChu?: string;

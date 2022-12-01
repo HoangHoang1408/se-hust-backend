@@ -17,7 +17,7 @@ export class DataService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {
-    // this.generateUserData(100);
+    //  this.generateUserData(100);
   }
 
   // generate dữ liệu người dùng vào csdl
@@ -139,6 +139,7 @@ export class DataService {
           ngaySinh: faker.date.between(start, end),
           gioiTinh: sample(['Nam', 'Nữ']),
           tamTru: null,
+          tamVang: false,
           noiLamViec: `${sampleSize(alphabetLetters, sample([4, 5, 6])).join(
             '',
           )}, ${sampleSize(alphabetLetters, sample([4, 5, 6])).join(

@@ -4,6 +4,8 @@ import { createError } from 'src/common/utils/createError';
 import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
 import { In, Repository } from 'typeorm';
 import {
+  DangKyTamVangInput,
+  DangKyTamVangOutput,
   TachHoKhauInput,
   TachHoKhauOutput,
   ThayDoiChuHoInput,
@@ -14,6 +16,8 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
+  XoaDangKyTamVangInput,
+  XoaDangKyTamVangOutput,
 } from './dto/hokhau.dto';
 import { HoKhau } from './entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from './entity/lichsuhokhau.entity';
@@ -324,6 +328,73 @@ export class HokhauService {
 
   // Xóa hộ khẩu
   async xoaHoKhau() { }
+
+
+  async dangKyTamVang(
+    nguoiPheDuyet: User,
+    input: DangKyTamVangInput,
+  ): Promise<DangKyTamVangOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra tồn tại người yêu cầu không
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm vắng không
+      if (nguoiYeuCau.tamVang == true) 
+        return createError('Input', 'Người yêu cầu đang tạm vắng !')
+
+      //cập nhật tình trạng tạm vắng 
+      nguoiYeuCau.tamVang=true;
+
+      //lưu vào database
+      this.userRepo.save(nguoiYeuCau);
+      return {
+        ok: true,
+      }
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');     
+    }
+  }
+
+  async xoaDangKyTamVang(
+    nguoiPheDuyet: User,
+    input: XoaDangKyTamVangInput,
+  ): Promise<XoaDangKyTamVangOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra tồn tại người yêu cầu không
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm vắng không
+      if (nguoiYeuCau.tamVang == false)
+        return createError('Input', 'Người yêu cầu chưa đăng ký tạm vắng !');
+
+      //cập nhật tình trạng tạm vắng
+      nguoiYeuCau.tamVang = false;
+
+      //lưu vào database
+      this.userRepo.save(nguoiYeuCau);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
 
   // Đổi chủ hộ
   async thayDoiChuHo(

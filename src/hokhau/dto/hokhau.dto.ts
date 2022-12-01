@@ -83,3 +83,18 @@ export class ThayDoiChuHoInput {
 }
 @ObjectType()
 export class ThayDoiChuHoOutput extends CoreOutput {}
+
+@InputType()
+export class DangKyTamVangInput{
+  @Field(() => ID)
+  nguoiYeuCauId:number;
+}
+@ObjectType()
+export class DangKyTamVangOutput extends CoreOutput {}
+@InputType()
+export class XoaDangKyTamVangInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+}
+@ObjectType()
+export class XoaDangKyTamVangOutput extends CoreOutput {}
