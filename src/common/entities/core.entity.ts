@@ -6,6 +6,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum SortOrder {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 @ObjectType({ isAbstract: true })
 @Entity()
 export abstract class CoreEntity {

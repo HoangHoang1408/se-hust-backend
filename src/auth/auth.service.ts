@@ -67,7 +67,6 @@ export class AuthService {
           'Input',
           'Số căn cước công dân chưa được đăng kí tài khoản',
         );
-      console.log(await user.checkPassword(matKhau));
       if (!(await user.checkPassword(matKhau)))
         return createError('Input', 'Mật khẩu không hợp lệ');
       const accessToken = sign(

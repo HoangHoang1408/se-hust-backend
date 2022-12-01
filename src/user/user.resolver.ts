@@ -6,6 +6,8 @@ import {
   AddUserOutput,
   EditUserInput,
   EditUserOutput,
+  XemDanhSachNguoiDungInput,
+  XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -39,6 +41,11 @@ export class UserResolver {
   @Roles(['ToTruong', 'ToPho'])
   editUser(@Args('input') input: EditUserInput) {
     return this.userService.editUser(input);
+
+  @Query(() => XemDanhSachNguoiDungOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xemDanhSachNguoiDung(@Args('input') input: XemDanhSachNguoiDungInput) {
+    return this.userService.xemDanhSachNguoiDung(input);
   }
 }
 
