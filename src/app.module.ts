@@ -41,6 +41,7 @@ import { UserModule } from './user/user.module';
         FIREBASE_PROJECT_ID: Joi.string().required(),
         FIREBASE_STORAGE_BUCKET: Joi.string().required(),
         FIREBASE_APP_ID: Joi.string().required(),
+        CLIENT_DOMAIN: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -51,14 +52,10 @@ import { UserModule } from './user/user.module';
       context: ({ req, res }: { req: Request; res: Response }) => {
         return { req, res, [ACCESS_TOKEN]: req.get(ACCESS_TOKEN) };
       },
-      // cors: {
-      //   origin: [
-      //     process.env.CLIENT_DOMAIN,
-      //     process.env.SERVER_DOMAIN,
-      //     process.env.DEV_DOMAIN,
-      //   ],
-      //   credentials: true,
-      // },
+      cors: {
+        origin: [process.env.CLIENT_DOMAIN, process.env.DEV_DOMAIN],
+        credentials: true,
+      },
     }),
     SMSModule.forRoot({
       accountSID: process.env.SMS_ACCOUNT_SID,
