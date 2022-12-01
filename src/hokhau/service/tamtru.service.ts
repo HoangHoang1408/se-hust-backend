@@ -5,7 +5,7 @@ import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
 import { AddTamTruInput, AddTamTruOutput, xemThongTinTamTruOutput } from "../dto/tamtru.dto";
 import { TamTru } from "../entity/tamtru.entity";
-
+import date from 'date-and-time'
 @Injectable()
 export class TamTruService {
     constructor(
@@ -37,19 +37,23 @@ export class TamTruService {
             // kiểm tra người đó đã tồn tại trong bảng tạm trú hay chưa
             const tamtru = await this.tamTruRepo.findOne({
                 where: {
-                    userTamTru: {
+                    nguoiTamTru: {
                         id: nguoiTamTruId
                     }
                 },
             });
-            const ngayHetHanTamTru = new Date(Date.now() + 365 * 1000 * 3600 * 24);
-            if (!tamtru) return createError('Input', "Người này đã được thêm tạm trú");
+            // const ngayHetHanTamTru = new Date();
+            // ngayHetHanTamTru.setDate(ngayHetHanTamTru.getDate() + 365);
+            // const next_year = new Date(1);
+            const now = new Date();
+            const next_year = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+            if (tamtru) return createError('Input', "Người này đã được thêm tạm trú");
 
 
             await this.tamTruRepo.save(this.tamTruRepo.create({
                 nguoiPheDuyet,
-                userTamTru: user,
-                ngayHetHanTamTru: Date.now(),
+                nguoiTamTru: user,
+                // ngayHetHanTamTru: next_year,
                 noiTamTruHienTai,
             }),);
             return {
@@ -66,7 +70,7 @@ export class TamTruService {
         try {
             const tamtru = await this.tamTruRepo.findOne({
                 where: {
-                    userTamTru: {
+                    nguoiTamTru: {
                         id: currentUser.id
                     }
                 },

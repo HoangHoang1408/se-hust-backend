@@ -1,7 +1,7 @@
 
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 
 
@@ -9,17 +9,17 @@ import { User } from "../../user/entities/user.entity";
 @ObjectType()
 @Entity()
 export class TamTru extends CoreEntity {
-    @OneToOne(() => User)
+    @ManyToOne(() => User)
     @JoinColumn()
     nguoiPheDuyet: User;
 
     @OneToOne(() => User)
     @JoinColumn()
-    userTamTru: User;
+    nguoiTamTru: User;
 
     @Field(() => Date)
-    @Column({ nullable: true })
-    ngayHetHanTamTru: Date;
+    @Column('timestamp without time zone', { nullable: true })
+    ngayHetHanTamTru?: Date;
 
     @Field({ nullable: true })
     @Column({ nullable: true })
@@ -27,6 +27,6 @@ export class TamTru extends CoreEntity {
 
     @Field({ nullable: true })
     @Column({ nullable: true })
-    noiTamTruHienTai: string;
+    noiTamTruHienTai?: string;
 
 }
