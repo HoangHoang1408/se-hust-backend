@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { omitBy } from 'lodash';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { ILike, Repository } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
+  EditUserInput,
+  EditUserOutput,
   XemDanhSachNguoiDungInput,
   XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
@@ -69,6 +72,31 @@ export class UserService {
       return {
         ok: true,
         user,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  async editUser(input: EditUserInput): Promise<EditUserOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      // ghi đè các trường input không bị null vào trong nguoiYeuCau
+
+      const updateUser = {
+        ...nguoiYeuCau,
+        ...omitBy(input, (v) => v == null),
+      };
+      this.userRepo.save(updateUser);
+      return {
+        ok: true,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import {
   LoginInput,
   LoginOutput,
+  NewAccessTokenInput,
+  NewAccessTokenOutput,
   RegisterUserInput,
   RegisterUserOutput,
 } from './dto/auth.dto';
@@ -19,5 +21,10 @@ export class AuthResolver {
   @Query(() => LoginOutput)
   login(@Args('input') input: LoginInput) {
     return this.authService.login(input);
+  }
+
+  @Query(() => NewAccessTokenOutput)
+  newAccessToken(@Args('input') input: NewAccessTokenInput) {
+    return this.authService.newAccessToken(input);
   }
 }

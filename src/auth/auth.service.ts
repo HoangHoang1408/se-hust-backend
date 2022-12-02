@@ -41,6 +41,8 @@ export class AuthService {
       });
       if (!user)
         return createError('Input', 'Số căn cước công dân không phù hợp');
+      if (user.daDangKi)
+        return createError('Input', 'Tài khoản đã được đăng kí');
       user.matKhau = matKhau;
       user.daDangKi = true;
       await this.userRepo.save(user);
@@ -68,7 +70,7 @@ export class AuthService {
           'Số căn cước công dân chưa được đăng kí tài khoản',
         );
       if (!(await user.checkPassword(matKhau)))
-        return createError('Input', 'Mật khẩu không hợp lệ');
+        return createError('Input', 'Mật khẩu không đúng');
       const accessToken = sign(
         {
           userId: user.id,
