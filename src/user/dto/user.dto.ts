@@ -1,4 +1,12 @@
-import { Field, ID, InputType, ObjectType, OmitType, PartialType, PickType } from '@nestjs/graphql';
+import {
+  Field,
+  ID,
+  InputType,
+  ObjectType,
+  OmitType,
+  PartialType,
+  PickType,
+} from '@nestjs/graphql';
 import {
   CoreOutput,
   PaginationInput,
@@ -32,7 +40,7 @@ export class EditUserInput extends OmitType(User, [
   'hoKhau',
   'hoKhauId',
   'tamTru',
-]){
+]) {
   @Field(() => ID)
   nguoiYeuCauId: number;
 }

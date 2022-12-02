@@ -19,7 +19,7 @@ import {
 import { HokhauService } from './hokhau.service';
 @Resolver()
 export class HokhauResolver {
-  constructor(private readonly hoKhauService: HokhauService) { }
+  constructor(private readonly hoKhauService: HokhauService) {}
 
   @Query(() => XemHoKhauChiTietChoQuanLiOutput)
   @Roles(['ToTruong', 'ToPho'])
@@ -77,5 +77,4 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.xemLichSuThayDoiNhanKhau(input);
   }
-
 }
