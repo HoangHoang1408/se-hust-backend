@@ -1,4 +1,12 @@
-import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import {
+  Field,
+  ID,
+  InputType,
+  ObjectType,
+  OmitType,
+  PartialType,
+  PickType,
+} from '@nestjs/graphql';
 import {
   CoreOutput,
   PaginationInput,
@@ -18,6 +26,27 @@ export class AddUserInput extends OmitType(User, [
 
 @ObjectType()
 export class AddUserOutput extends CoreOutput {}
+
+@InputType()
+export class EditUserInput extends OmitType(User, [
+  'checkPassword',
+  'createdAt',
+  'updatedAt',
+  'hashPassword',
+  'matKhau',
+  'vaiTroNguoiDung',
+  'canCuocCongDan',
+  'daDangKi',
+  'hoKhau',
+  'hoKhauId',
+  'tamTru',
+]) {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+}
+
+@ObjectType()
+export class EditUserOutput extends CoreOutput {}
 
 @ObjectType()
 export class XemThongTinNguoiDungOutput extends CoreOutput {

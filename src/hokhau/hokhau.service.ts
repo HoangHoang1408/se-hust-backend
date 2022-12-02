@@ -12,6 +12,8 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
+  XemLichSuThayDoiNhanKhauInput,
+  XemLichSuThayDoiNhanKhauOutput,
   XoaNguoiKhoiHoKhauInput,
   XoaNguoiKhoiHoKhauOutput,
 } from './dto/hokhau.dto';
@@ -398,6 +400,26 @@ export class HokhauService {
 
       return {
         ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  async xemLichSuThayDoiNhanKhau(
+    input: XemLichSuThayDoiNhanKhauInput,
+  ): Promise<XemLichSuThayDoiNhanKhauOutput> {
+    try {
+      const lichSuHoKhau = await this.lichSuHoKhauRepo.find({
+        where: {
+          hoKhau: {
+            id: input.hoKhauId,
+          },
+        },
+      });
+      if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
+      return {
+        ok: true,
+        lichSuHoKhau,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

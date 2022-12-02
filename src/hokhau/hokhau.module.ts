@@ -8,6 +8,6 @@ import { HokhauService } from './hokhau.service';
 
 @Module({
   providers: [HokhauService, HokhauResolver],
-  imports: [TypeOrmModule.forFeature([HoKhau,User,LichSuHoKhau])],
+  imports: [TypeOrmModule.forFeature([HoKhau, User, LichSuHoKhau])],
 })
 export class HokhauModule {}
