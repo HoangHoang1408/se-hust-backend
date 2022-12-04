@@ -13,7 +13,16 @@ import { TamTruService } from './service/tamtru.service';
 import { TamVangService } from './service/tamvang.service';
 
 @Module({
-  providers: [HokhauService, HokhauResolver],
-  imports: [TypeOrmModule.forFeature([HoKhau, User, LichSuHoKhau])],
+  providers: [
+    HokhauService,
+    HokhauResolver,
+    TamTruResolver,
+    TamTruService,
+    TamVangService,
+    TamVangResolver,
+  ],
+  imports: [
+    TypeOrmModule.forFeature([HoKhau, User, LichSuHoKhau, TamTru, TamVang]),
+  ],
 })
-export class HokhauModule { }
+export class HokhauModule {}

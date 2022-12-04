@@ -2,7 +2,6 @@ import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { TamTru } from '../entity/tamtru.entity';
 
-
 @InputType()
 export class AddTamTruInput {
   @Field(() => ID)
@@ -11,8 +10,7 @@ export class AddTamTruInput {
   noiTamTruHienTai: string;
 }
 @ObjectType()
-export class AddTamTruOutput extends CoreOutput {
-}
+export class AddTamTruOutput extends CoreOutput {}
 // export class xemThongTinTamTruInput {
 //   @Field(() => ID)
 //   nguoiTamTruId: number;
@@ -22,6 +20,4 @@ export class AddTamTruOutput extends CoreOutput {
 export class xemThongTinTamTruOutput extends CoreOutput {
   @Field(() => TamTru, { nullable: true })
   tamtru?: TamTru;
-
 }
-

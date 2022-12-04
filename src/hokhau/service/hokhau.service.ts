@@ -16,9 +16,9 @@ import {
   XemLichSuThayDoiNhanKhauOutput,
   XoaNguoiKhoiHoKhauInput,
   XoaNguoiKhoiHoKhauOutput,
-} from './dto/hokhau.dto';
-import { HoKhau } from './entity/hokhau.entity';
-import { HanhDongHoKhau, LichSuHoKhau } from './entity/lichsuhokhau.entity';
+} from '../dto/hokhau.dto';
+import { HoKhau } from '../entity/hokhau.entity';
+import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
 @Injectable()
 export class HokhauService {
   constructor(
