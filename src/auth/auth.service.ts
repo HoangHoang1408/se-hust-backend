@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JsonWebTokenError, sign, verify } from 'jsonwebtoken';
-import { check } from 'prettier';
 import {
   ACCESS_TOKEN_EXPIRED_IN,
   ACCESS_TOKEN_SECRET,
 } from 'src/common/constants/constants';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { BeforeInsert, BeforeUpdate, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   LoginInput,
   LoginOutput,
