@@ -15,8 +15,14 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
+
   XoaDangKyTamVangInput,
   XoaDangKyTamVangOutput,
+
+  XemLichSuThayDoiNhanKhauInput,
+  XemLichSuThayDoiNhanKhauOutput,
+  XoaNguoiKhoiHoKhauInput,
+  XoaNguoiKhoiHoKhauOutput,
 } from './dto/hokhau.dto';
 import { HokhauService } from './hokhau.service';
 @Resolver()
@@ -62,6 +68,7 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.themNguoiVaoHoKhau(nguoiPheDuyet, input);
   }
+
   @Mutation(() => ThayDoiChuHoOutput)
   @Roles(['ToTruong', 'ToPho'])
   thayDoiChuHo(
@@ -85,5 +92,23 @@ export class HokhauResolver {
     @Args('input') input: XoaDangKyTamVangInput,
   ) {
     return this.hoKhauService.xoaDangKyTamVang(nguoiPheDuyet, input);
+
+
+  @Mutation(() => XoaNguoiKhoiHoKhauOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xoaNguoiKhoiHoKhau(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: XoaNguoiKhoiHoKhauInput,
+  ) {
+    return this.hoKhauService.xoaNguoiKhoiHoKhau(nguoiPheDuyet, input);
+  }
+
+  @Query(() => XemLichSuThayDoiNhanKhauOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xemLichSuThayDoiNhanKhau(
+    @Args('input') input: XemLichSuThayDoiNhanKhauInput,
+  ) {
+    return this.hoKhauService.xemLichSuThayDoiNhanKhau(input);
+
   }
 }

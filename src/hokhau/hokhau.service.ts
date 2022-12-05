@@ -16,8 +16,15 @@ import {
   ThemNguoiVaoHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
+
   XoaDangKyTamVangInput,
   XoaDangKyTamVangOutput,
+
+  XemLichSuThayDoiNhanKhauInput,
+  XemLichSuThayDoiNhanKhauOutput,
+  XoaNguoiKhoiHoKhauInput,
+  XoaNguoiKhoiHoKhauOutput,
+
 } from './dto/hokhau.dto';
 import { HoKhau } from './entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from './entity/lichsuhokhau.entity';
@@ -28,7 +35,7 @@ export class HokhauService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(LichSuHoKhau)
     private readonly lichSuHoKhauRepo: Repository<LichSuHoKhau>,
-  ) { }
+  ) {}
   // Tạo số của sổ hộ khẩu
   private generateSoHoKhau(): number {
     //generate random number
@@ -266,41 +273,45 @@ export class HokhauService {
   }
 
   // Thêm người vào hộ khẩu
-  async themNguoiVaoHoKhau(nguoiPheDuyet: User, input: ThemNguoiVaoHoKhauInput): Promise<ThemNguoiVaoHoKhauOutput> {
+  async themNguoiVaoHoKhau(
+    nguoiPheDuyet: User,
+    input: ThemNguoiVaoHoKhauInput,
+  ): Promise<ThemNguoiVaoHoKhauOutput> {
     try {
-      const {
-        nguoiYeuCauId,
-        nguoiMoi,
-        hoKhauId,
-      } = input;
+      const { nguoiYeuCauId, nguoiMoi, hoKhauId } = input;
       //kiem tra ho khau can vao co ton tai trong khu dan pho khong
       const hoKhau = await this.hoKhauRepo.findOne({
         where: {
           id: hoKhauId,
         },
         relations: {
-          thanhVien: true
-        }
+          thanhVien: true,
+        },
       });
-      if (!hoKhau) return createError('Input', "Ho khau khong hop le");
+      if (!hoKhau) return createError('Input', 'Ho khau khong hop le');
       // kiem tra nguoi yeu cau co trong ho khau nay khong
       const nguoiYeuCau = await this.userRepo.findOne({
         where: {
           id: nguoiYeuCauId,
         },
       });
-      if (!nguoiYeuCau || nguoiYeuCau.hoKhauId != hoKhauId) return createError('Input', "Người yêu cầu không hợp lệ");
+      if (!nguoiYeuCau || nguoiYeuCau.hoKhauId != hoKhauId)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
       // kiem tra nguoi them vao ton tai khong
       const thanhVienMoi = await this.userRepo.findOne({
         where: {
           id: nguoiMoi.id,
         },
       });
-      if (!thanhVienMoi) return createError('Input', "Thành viên này không tồn tại ");
-
+      if (!thanhVienMoi)
+        return createError('Input', 'Thành viên này không tồn tại ');
 
       // kiem tra nguoi them vao da co trong ho khau chua
-      if (thanhVienMoi.hoKhauId == hoKhauId) return createError('Input', "Thành viên này đã tồn tại trong hộ khẩu này ");
+      if (thanhVienMoi.hoKhauId == hoKhauId)
+        return createError(
+          'Input',
+          'Thành viên này đã tồn tại trong hộ khẩu này ',
+        );
       // cap nhat vai tro cua thanh vien moi
       thanhVienMoi.vaiTroThanhVien = nguoiMoi.vaiTroThanhVien;
 
@@ -315,8 +326,8 @@ export class HokhauService {
           nguoiPheDuyet,
           nguoiYeuCau,
           hoKhau,
-        })
-      )
+        }),
+      );
 
       return {
         ok: true,
@@ -327,7 +338,7 @@ export class HokhauService {
   }
 
   // Xóa hộ khẩu
-  async xoaHoKhau() { }
+  async xoaHoKhau() {}
 
 
   async dangKyTamVang(
@@ -397,6 +408,7 @@ export class HokhauService {
   }
 
   // Đổi chủ hộ
+
   async thayDoiChuHo(
     nguoiPheDuyet: User,
     input: ThayDoiChuHoInput,
@@ -405,6 +417,19 @@ export class HokhauService {
       const { nguoiYeuCauId, hoKhauId, thayDoiVaiTroThanhVien } = input;
 
       //Kiểm tra hộ khẩu có tồn tại không
+
+  async doiChuHo() {}
+
+  //Xoa nguoi khoi ho khau
+  async xoaNguoiKhoiHoKhau(
+    nguoiPheDuyet: User,
+    input: XoaNguoiKhoiHoKhauInput,
+  ): Promise<XoaNguoiKhoiHoKhauOutput> {
+    try {
+      const { nguoiYeuCauId, nguoiCanXoaId, hoKhauId } = input;
+
+      //kiem tra ho khau co ton tai trong khu dan pho khong
+
       const hoKhau = await this.hoKhauRepo.findOne({
         where: {
           id: hoKhauId,
@@ -413,14 +438,21 @@ export class HokhauService {
           thanhVien: true,
         },
       });
+
       if (!hoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
 
       //kiểm tra tồn tại người yêu cầu không
+
+      if (!hoKhau) return createError('Input', 'Hộ khẩu không hợp lệ');
+
+      //kiem tra nguoi yeu cau co trong ho khau hay khong
+
       const nguoiYeuCau = await this.userRepo.findOne({
         where: {
           id: nguoiYeuCauId,
         },
       });
+
       if (!nguoiYeuCau)
         return createError('Input', 'Người yêu cầu không hợp lệ');
 
@@ -462,8 +494,68 @@ export class HokhauService {
       await this.hoKhauRepo.save(hoKhau);
       await this.lichSuHoKhauRepo.save(lichSu);
 
+      if (!nguoiYeuCau || nguoiYeuCau.hoKhauId !== hoKhau.id)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      //kiem tra nguoi can xoa co trong ho khau hay khong
+      const nguoiCanXoa = await this.userRepo.findOne({
+        where: {
+          id: nguoiCanXoaId,
+        },
+      });
+      if (!nguoiCanXoa)
+        return createError('Input', 'Nguoi can duoc xoa khong ton tai h');
+      if (+nguoiCanXoa.hoKhauId !== +hoKhauId)
+        return createError(
+          'Input',
+          'Nguoi can duoc xoa khong nam trong ho khau',
+        );
+
+      //kiem tra nguoi can xoa co phai chu ho khong
+      if (nguoiCanXoa.vaiTroThanhVien == VaiTroThanhVien.ChuHo)
+        return createError('Input', 'Nguoi can xoa khong hop le');
+
+      // xoa nguoi can duoc xoa khoi ho khau
+      nguoiCanXoa.hoKhau = null;
+      nguoiCanXoa.vaiTroThanhVien = null;
+      hoKhau.thanhVien.filter(function (e) {
+        return e.id !== nguoiCanXoa.id;
+      });
+      await this.hoKhauRepo.save(hoKhau);
+      await this.userRepo.save(nguoiCanXoa);
+      await this.lichSuHoKhauRepo.save(
+        this.lichSuHoKhauRepo.create({
+          hanhDong: HanhDongHoKhau.XoaNguoiKhoiHoKhau,
+          thoiGian: new Date(),
+          nguoiPheDuyet,
+          nguoiYeuCau,
+          hoKhau,
+        }),
+      );
+
+
       return {
         ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  async xemLichSuThayDoiNhanKhau(
+    input: XemLichSuThayDoiNhanKhauInput,
+  ): Promise<XemLichSuThayDoiNhanKhauOutput> {
+    try {
+      const lichSuHoKhau = await this.lichSuHoKhauRepo.find({
+        where: {
+          hoKhau: {
+            id: input.hoKhauId,
+          },
+        },
+      });
+      if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
+      return {
+        ok: true,
+        lichSuHoKhau,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

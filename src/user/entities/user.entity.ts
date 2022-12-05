@@ -63,7 +63,9 @@ registerEnumType(VaiTroThanhVien, {
 export class User extends CoreEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
-  @Length(12, 12)
+  @Length(12, 12, {
+    message: 'Số CMND phải có 12 chữ số',
+  })
   canCuocCongDan: string;
 
   @Field({ nullable: true })

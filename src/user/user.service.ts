@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { omitBy } from 'lodash';
+import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
+  EditUserInput,
+  EditUserOutput,
+  XemDanhSachNguoiDungInput,
+  XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
 } from './dto/user.dto';
@@ -64,6 +70,67 @@ export class UserService {
       return {
         ok: true,
         user,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  async editUser(input: EditUserInput): Promise<EditUserOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      // ghi đè các trường input không bị null vào trong nguoiYeuCau
+
+      const updateUser = {
+        ...nguoiYeuCau,
+        ...omitBy(input, (v) => v == null),
+      };
+      this.userRepo.save(updateUser);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  // xem danh sach nguoi dung cho quan li
+  async xemDanhSachNguoiDung(
+    input: XemDanhSachNguoiDungInput,
+  ): Promise<XemDanhSachNguoiDungOutput> {
+    try {
+      const {
+        paginationInput: { page, resultsPerPage },
+        hoTen,
+        canCuocCongDan,
+      } = input;
+      const [users, totalResults] = await this.userRepo.findAndCount({
+        where: {
+          ten: hoTen ? ILike(`%${hoTen}%`) : undefined,
+          canCuocCongDan: canCuocCongDan
+            ? ILike(`%${canCuocCongDan}%`)
+            : undefined,
+        },
+        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
+        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        order: {
+          updatedAt: SortOrder.DESC,
+        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+      });
+      return {
+        ok: true,
+        users,
+        paginationOutput: {
+          totalResults,
+          totalPages: Math.ceil(totalResults / resultsPerPage),
+        },
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

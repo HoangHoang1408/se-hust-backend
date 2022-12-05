@@ -2,6 +2,7 @@ import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { VaiTroThanhVien } from 'src/user/entities/user.entity';
 import { HoKhau } from '../entity/hokhau.entity';
+import { LichSuHoKhau } from '../entity/lichsuhokhau.entity';
 
 @InputType()
 class ThanhVien {
@@ -28,7 +29,7 @@ export class TachHoKhauInput {
 }
 
 @ObjectType()
-export class TachHoKhauOutput extends CoreOutput { }
+export class TachHoKhauOutput extends CoreOutput {}
 
 @InputType()
 export class ThemHoKhauInput {
@@ -51,14 +52,13 @@ export class ThemNguoiVaoHoKhauInput {
 
   @Field(() => ID)
   hoKhauId: number;
-
 }
 
 @ObjectType()
-export class ThemNguoiVaoHoKhauOutput extends CoreOutput { }
+export class ThemNguoiVaoHoKhauOutput extends CoreOutput {}
 
 @ObjectType()
-export class ThemHoKhauOutput extends CoreOutput { }
+export class ThemHoKhauOutput extends CoreOutput {}
 
 @InputType()
 export class XemHoKhauChiTietChoQuanLiInput {
@@ -70,12 +70,18 @@ export class XemHoKhauChiTietChoQuanLiOutput extends CoreOutput {
   @Field(() => HoKhau, { nullable: true })
   hoKhau?: HoKhau;
 }
+
 @InputType()
 export class ThayDoiChuHoInput {
+
+@InputType()
+export class XoaNguoiKhoiHoKhauInput {
+
   @Field(() => ID)
   nguoiYeuCauId: number;
 
   @Field(() => ID)
+
   hoKhauId: number;
 
   @Field(() => [ThanhVien])
@@ -98,3 +104,24 @@ export class XoaDangKyTamVangInput {
 }
 @ObjectType()
 export class XoaDangKyTamVangOutput extends CoreOutput {}
+
+  nguoiCanXoaId: number;
+
+  @Field(() => ID)
+  hoKhauId: number;
+}
+@ObjectType()
+export class XoaNguoiKhoiHoKhauOutput extends CoreOutput {}
+
+@InputType()
+export class XemLichSuThayDoiNhanKhauInput {
+  @Field(() => ID)
+  hoKhauId: number;
+}
+
+@ObjectType()
+export class XemLichSuThayDoiNhanKhauOutput extends CoreOutput {
+  @Field(() => LichSuHoKhau, { nullable: true })
+  lichSuHoKhau?: LichSuHoKhau[];
+}
+
