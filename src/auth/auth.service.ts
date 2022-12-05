@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JsonWebTokenError, sign, verify } from 'jsonwebtoken';
+import { check } from 'prettier';
 import {
   ACCESS_TOKEN_EXPIRED_IN,
   ACCESS_TOKEN_SECRET,
 } from 'src/common/constants/constants';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Repository } from 'typeorm';
 import {
   LoginInput,
   LoginOutput,
@@ -16,6 +17,8 @@ import {
   NewAccessTokenOutput,
   RegisterUserInput,
   RegisterUserOutput,
+  ChangePasswordInput,
+  ChangePasswordOutput,
 } from './dto/auth.dto';
 
 @Injectable()
@@ -120,4 +123,38 @@ export class AuthService {
   }
 
   // TODO: Triển khai quên mật khẩu (khi chọn được dịch vụ SMS phù hợp)
+
+  async changePassword(
+    currentUser: User,
+    input: ChangePasswordInput,
+  ): Promise<ChangePasswordOutput> {
+    try {
+      const { matKhauHienTai, matKhauMoi, matKhauMoiLapLai } = input;
+
+      const user = await this.userRepo.findOne({
+        where: { id: currentUser.id },
+        select: ['matKhau', 'id'],
+      });
+
+      //kiem tra User ton tai khong
+      if (!user) createError('Input', 'Người dùng không tồn tại');
+
+      //kiem tra mat khau hien tai dung hay khong
+      if (!(await user.checkPassword(matKhauHienTai)))
+        return createError('Input', 'Mật khẩu hiện tại không đúng');
+
+      //Kiem tra mat khau moi va mat khau nhap lai co trung nhau hay khong
+      if (matKhauMoi !== matKhauMoiLapLai)
+        return createError('Input', 'Mật khẩu lặp lại không khớp');
+
+      user.matKhau = matKhauMoi;
+      await this.userRepo.save(user);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
 }
