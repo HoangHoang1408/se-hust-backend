@@ -18,6 +18,7 @@ import { TamTru } from './hokhau/entity/tamtru.entity';
 import { TamVang } from './hokhau/entity/tamvang.entity';
 import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
+import { UploadModule } from './upload/upload.module';
 
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
@@ -102,6 +103,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     DataModule,
     HokhauModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

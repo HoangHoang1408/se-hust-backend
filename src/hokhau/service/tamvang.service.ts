@@ -8,8 +8,6 @@ import {
   AddTamVangOutput,
   xemThongTinTamVangOutput,
 } from '../dto/tamvang.dto';
-import { HoKhau } from '../entity/hokhau.entity';
-import { LichSuHoKhau } from '../entity/lichsuhokhau.entity';
 import { TamVang } from '../entity/tamvang.entity';
 
 @Injectable()
@@ -28,7 +26,6 @@ export class TamVangService {
     try {
       const { nguoiTamVangId, lyDoTamVang, diaChiNoiDen } = input;
 
-
       const user = await this.userRepo.findOne({
         where: { id: nguoiTamVangId },
       });
@@ -37,7 +34,11 @@ export class TamVangService {
         return createError('Input', 'Người này không có trong khu dân phố');
 
       // kiểm tra người này có phải chủ hộ hay không
-      if (user.vaiTroThanhVien == 'Chủ hộ') return createError("input","Cần chuyển vai trò thành viên của người này");
+      if (user.vaiTroThanhVien == 'Chủ hộ')
+        return createError(
+          'input',
+          'Cần chuyển vai trò thành viên của người này',
+        );
       // kiểm tra người này có phải đã có hổ khẩu cư trú ở đây chưa
       if (!user.hoKhauId)
         return createError(
