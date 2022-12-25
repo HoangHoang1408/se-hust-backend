@@ -87,11 +87,11 @@ export class UserService {
       if (!nguoiYeuCau)
         return createError('Input', 'Người yêu cầu không hợp lệ');
 
-      // ghi đè các trường input không bị null vào trong nguoiYeuCau
+      // ghi đè các trường input không bị null hoặc undefined vào trong nguoiYeuCau
 
       const updateUser = {
         ...nguoiYeuCau,
-        ...omitBy(input, (v) => v == null),
+        ...omitBy(input, (v) => v == null || v == undefined),
       };
       this.userRepo.save(updateUser);
       return {
