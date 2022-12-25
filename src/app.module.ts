@@ -56,7 +56,7 @@ import { UserModule } from './user/user.module';
         return { req, res, [ACCESS_TOKEN]: req.get(ACCESS_TOKEN) };
       },
       cors: {
-        origin: [process.env.CLIENT_DOMAIN, process.env.DEV_DOMAIN],
+        origin: [process.env.CLIENT_DOMAIN, process.env.DEV_DOMAIN="http://localhost:5173"],
         credentials: true,
       },
     }),
