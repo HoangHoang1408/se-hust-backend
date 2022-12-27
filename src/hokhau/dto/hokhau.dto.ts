@@ -105,6 +105,9 @@ export class XemDanhSachHoKhauInput {
   hoTen?: string;
 
   @Field({ nullable: true })
+  canCuocCongDan?: string;
+
+  @Field({ nullable: true })
   soHoKhau?: number;
 }
 @ObjectType()

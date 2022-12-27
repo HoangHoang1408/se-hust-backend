@@ -437,12 +437,16 @@ export class HokhauService {
       const {
         paginationInput: { page, resultsPerPage },
         hoTen,
+        canCuocCongDan,
         soHoKhau,
       } = input;
 
       const thanhVien = await this.userRepo.find({
         where: {
           ten: hoTen ? ILike(`%${hoTen}%`) : undefined,
+          canCuocCongDan: canCuocCongDan
+            ? ILike(`%${canCuocCongDan}%`)
+            : undefined,
         },
       });
 
