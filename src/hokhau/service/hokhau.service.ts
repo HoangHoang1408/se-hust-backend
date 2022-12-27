@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
-import { In, Repository } from 'typeorm';
+import { ILike, In, Like, Repository } from 'typeorm';
 import {
   TachHoKhauInput,
   TachHoKhauOutput,
@@ -14,6 +15,8 @@ import {
   XemHoKhauChiTietChoQuanLiOutput,
   XemLichSuThayDoiNhanKhauInput,
   XemLichSuThayDoiNhanKhauOutput,
+  XemDanhSachHoKhauInput,
+  XemDanhSachHoKhauOutput,
   XoaNguoiKhoiHoKhauInput,
   XoaNguoiKhoiHoKhauOutput,
 } from '../dto/hokhau.dto';
@@ -420,6 +423,60 @@ export class HokhauService {
       return {
         ok: true,
         lichSuHoKhau,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  // xem danh sách hộ khẩu
+  async xemDanhSachHoKhau(
+    input: XemDanhSachHoKhauInput,
+  ): Promise<XemDanhSachHoKhauOutput> {
+    try {
+      const {
+        paginationInput: { page, resultsPerPage },
+        hoTen,
+        canCuocCongDan,
+        soHoKhau,
+      } = input;
+
+      const thanhVien = await this.userRepo.find({
+        where: {
+          ten: hoTen ? ILike(`%${hoTen}%`) : undefined,
+          canCuocCongDan: canCuocCongDan
+            ? ILike(`%${canCuocCongDan}%`)
+            : undefined,
+        },
+      });
+
+      const idHoKhau = thanhVien.map((tv) => tv.hoKhauId);
+      const [hoKhau, totalResults] = await this.hoKhauRepo.findAndCount({
+        where: [
+          {
+            id: In(idHoKhau),
+          },
+          {
+            soHoKhau: soHoKhau ? soHoKhau : undefined,
+          },
+        ],
+        relations: {
+          thanhVien: true,
+        },
+        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
+        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        order: {
+          updatedAt: SortOrder.DESC,
+        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+      });
+
+      return {
+        ok: true,
+        hoKhau,
+        paginationOutput: {
+          totalResults,
+          totalPages: Math.ceil(totalResults / resultsPerPage),
+        },
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

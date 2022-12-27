@@ -9,6 +9,8 @@ import {
   ThemHoKhauOutput,
   ThemNguoiVaoHoKhauInput,
   ThemNguoiVaoHoKhauOutput,
+  XemDanhSachHoKhauInput,
+  XemDanhSachHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
   XemLichSuThayDoiNhanKhauInput,
@@ -77,4 +79,13 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.xemLichSuThayDoiNhanKhau(input);
   }
+
+  @Query(() => XemDanhSachHoKhauOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  xemDanhSachHoKhau(
+    @Args('input') input: XemDanhSachHoKhauInput,
+  ) {
+    return this.hoKhauService.xemDanhSachHoKhau(input);
+  }
+  
 }
