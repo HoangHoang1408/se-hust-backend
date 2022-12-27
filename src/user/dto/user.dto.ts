@@ -5,7 +5,6 @@ import {
   ObjectType,
   OmitType,
   PartialType,
-  PickType,
 } from '@nestjs/graphql';
 import {
   CoreOutput,
@@ -16,31 +15,41 @@ import { User } from '../entities/user.entity';
 
 @InputType()
 export class AddUserInput extends OmitType(User, [
+  'id',
   'checkPassword',
   'createdAt',
   'updatedAt',
   'hashPassword',
   'matKhau',
   'vaiTroNguoiDung',
+  'vaiTroThanhVien',
+  'daDangKi',
+  'hoKhau',
+  'tamTru',
+  'ngayDangKiThuongTru',
 ]) {}
 
 @ObjectType()
 export class AddUserOutput extends CoreOutput {}
 
 @InputType()
-export class EditUserInput extends OmitType(User, [
-  'checkPassword',
-  'createdAt',
-  'updatedAt',
-  'hashPassword',
-  'matKhau',
-  'vaiTroNguoiDung',
-  'canCuocCongDan',
-  'daDangKi',
-  'hoKhau',
-  'hoKhauId',
-  'tamTru',
-]) {
+export class EditUserInput extends PartialType(
+  OmitType(User, [
+    'checkPassword',
+    'createdAt',
+    'updatedAt',
+    'hashPassword',
+    'matKhau',
+    'vaiTroNguoiDung',
+    'canCuocCongDan',
+    'daDangKi',
+    'hoKhau',
+    'hoKhauId',
+    'tamTru',
+    'id',
+    'vaiTroThanhVien',
+  ]),
+) {
   @Field(() => ID)
   nguoiYeuCauId: number;
 }
