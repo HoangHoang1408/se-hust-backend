@@ -30,6 +30,7 @@ export enum VaitroNguoiDung {
   NguoiDan = 'NguoiDan',
   ToTruong = 'ToTruong',
   ToPho = 'ToPho',
+  KeToan = 'KeToan',
 }
 
 export enum VaiTroThanhVien {
