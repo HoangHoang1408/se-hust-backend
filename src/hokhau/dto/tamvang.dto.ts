@@ -1,5 +1,6 @@
 import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
+import { HostedNumberOrderVerificationType } from 'twilio/lib/rest/preview/hosted_numbers/hostedNumberOrder';
 import { TamVang } from '../entity/tamvang.entity';
 
 @InputType()
@@ -19,3 +20,18 @@ export class xemThongTinTamVangOutput extends CoreOutput {
   @Field(() => TamVang, { nullable: true })
   tamVang?: TamVang;
 }
+
+@InputType()
+export class suaThongTinTamVangInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+  @Field(() => ID)
+  bangTamVangId: number;
+  @Field()
+  lyDoTamVang: string;
+  @Field()
+  diaChiNoiDenMoi: string;
+}
+
+@ObjectType()
+export class suaThongTinTamVangOutput extends CoreOutput {}

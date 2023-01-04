@@ -21,3 +21,15 @@ export class xemThongTinTamTruOutput extends CoreOutput {
   @Field(() => TamTru, { nullable: true })
   tamtru?: TamTru;
 }
+
+@InputType()
+export class suaThongTinTamTruInput extends CoreOutput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+  @Field(() => ID)
+  bangTamTruId: number;
+  @Field()
+  noiTamTruMoi: string;
+}
+@ObjectType()
+export class suaThongTinTamTruOutput extends CoreOutput {}
