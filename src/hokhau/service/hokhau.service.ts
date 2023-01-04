@@ -422,7 +422,9 @@ export class HokhauService {
         relations: {
           nguoiPheDuyet: true,
           nguoiYeuCau: true,
-          hoKhau: true,
+          hoKhau:{
+            thanhVien:true
+          }
         }
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
