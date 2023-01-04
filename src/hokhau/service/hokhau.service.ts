@@ -412,6 +412,7 @@ export class HokhauService {
     input: XemLichSuThayDoiNhanKhauInput,
   ): Promise<XemLichSuThayDoiNhanKhauOutput> {
     try {
+      if (!input.hoKhauId) return createError('Input', 'Không có hộ khẩu');
       const lichSuHoKhau = await this.lichSuHoKhauRepo.find({
         where: {
           hoKhau: {
