@@ -74,18 +74,23 @@ export class HokhauResolver {
 
   @Query(() => XemLichSuThayDoiNhanKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
-  xemLichSuThayDoiNhanKhau(
+  xemLichSuThayDoiNhanKhauChoQuanLy(
     @Args('input') input: XemLichSuThayDoiNhanKhauInput,
   ) {
     return this.hoKhauService.xemLichSuThayDoiNhanKhau(input);
   }
 
+  @Query(() => XemLichSuThayDoiNhanKhauOutput)
+  @Roles(['Any'])
+  xemLichSuThayDoiNhanKhauChoNguoiDung(@CurrentUser() user: User) {
+    return this.hoKhauService.xemLichSuThayDoiNhanKhau({
+      hoKhauId: user.hoKhauId,
+    });
+  }
+
   @Query(() => XemDanhSachHoKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
-  xemDanhSachHoKhau(
-    @Args('input') input: XemDanhSachHoKhauInput,
-  ) {
+  xemDanhSachHoKhau(@Args('input') input: XemDanhSachHoKhauInput) {
     return this.hoKhauService.xemDanhSachHoKhau(input);
   }
-  
 }
