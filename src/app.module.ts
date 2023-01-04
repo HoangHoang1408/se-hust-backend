@@ -20,6 +20,9 @@ import { HokhauModule } from './hokhau/hokhau.module';
 import { SMSModule } from './sms/sms.module';
 import { UploadModule } from './upload/upload.module';
 
+import { DongGop } from './thuchi/entities/donggop.entity';
+import { LoaiPhi } from './thuchi/entities/loaiphi.entity';
+import { ThuchiModule } from './thuchi/thuchi.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
@@ -85,7 +88,7 @@ import { UserModule } from './user/user.module';
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
           }),
-      entities: [User, HoKhau, LichSuHoKhau, TamTru, TamVang],
+      entities: [User, HoKhau, LichSuHoKhau, TamTru, TamVang, LoaiPhi, DongGop],
       synchronize: true,
       ...(process.env.NODE_ENV === 'production'
         ? {
@@ -104,6 +107,7 @@ import { UserModule } from './user/user.module';
     DataModule,
     HokhauModule,
     UploadModule,
+    ThuchiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
