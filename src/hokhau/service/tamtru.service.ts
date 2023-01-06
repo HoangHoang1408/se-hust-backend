@@ -7,6 +7,8 @@ import { ILike, In, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
+  suaThongTinTamTruInput,
+  suaThongTinTamTruOutput,
   xemDanhSachTamTruInput,
   xemDanhSachTamTruOutput,
 } from '../dto/tamtru.dto';
@@ -115,6 +117,66 @@ export class TamTruService {
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async suaThongTinTamTru(
+    nguoiPheDuyet: User,
+    input: suaThongTinTamTruInput,
+  ): Promise<suaThongTinTamTruOutput> {
+    try {
+      const { nguoiYeuCauId, bangTamTruId, noiTamTruMoi } = input;
+
+      const userYeuCau = await this.userRepo.findOne({
+        where: { id: nguoiYeuCauId },
+        select: ['id'],
+      });
+      if (!userYeuCau)
+        return createError(
+          'Input',
+          'Người yêu cầu đang không ở trong khu dân phố ',
+        );
+      if (userYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người yêu cầu đang thường trú trong khu dân phố này',
+        );
+
+      const tamTru = await this.tamTruRepo.findOne({
+        where: { id: bangTamTruId },
+        select: ['nguoiTamTru', 'id'],
+        relations: ['nguoiTamTru'],
+      });
+      if (!tamTru)
+        return createError(
+          'Input',
+          'Thông tin id của bảng tạm trú sai hoặc không tồn tại!',
+        );
+
+      if (userYeuCau.id !== tamTru.nguoiTamTru.id)
+        return createError(
+          'Input',
+          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
+        );
+
+      const now = new Date();
+      const next_year = new Date(
+        now.getFullYear() + 1,
+        now.getMonth(),
+        now.getDate(),
+      );
+
+      tamTru.nguoiPheDuyet = nguoiPheDuyet;
+      tamTru.noiTamTruHienTai = noiTamTruMoi;
+      tamTru.ngayHetHanTamTru = next_year;
+
+      await this.tamTruRepo.save(tamTru);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
 }

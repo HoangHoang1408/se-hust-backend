@@ -37,3 +37,16 @@ export class NewAccessTokenOutput extends CoreOutput {
   @Field({ nullable: true })
   accessToken?: string;
 }
+
+@InputType()
+export class ChangePasswordInput extends CoreOutput {
+  @Field()
+  matKhauCu: string;
+  @Field()
+  matKhauMoi: string;
+  @Field()
+  matKhauMoiLapLai: string;
+}
+
+@ObjectType()
+export class ChangePasswordOutput extends CoreOutput {}
