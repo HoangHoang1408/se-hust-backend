@@ -3,20 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
-import { ILike, In, Like, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import {
+  CapNhatHoKhauInput,
   TachHoKhauInput,
   TachHoKhauOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
   ThemNguoiVaoHoKhauInput,
   ThemNguoiVaoHoKhauOutput,
+  XemDanhSachHoKhauInput,
+  XemDanhSachHoKhauOutput,
   XemHoKhauChiTietChoQuanLiInput,
   XemHoKhauChiTietChoQuanLiOutput,
   XemLichSuThayDoiNhanKhauInput,
   XemLichSuThayDoiNhanKhauOutput,
-  XemDanhSachHoKhauInput,
-  XemDanhSachHoKhauOutput,
   XoaNguoiKhoiHoKhauInput,
   XoaNguoiKhoiHoKhauOutput,
 } from '../dto/hokhau.dto';
@@ -31,9 +32,9 @@ export class HokhauService {
     private readonly lichSuHoKhauRepo: Repository<LichSuHoKhau>,
   ) {}
   // Tạo số của sổ hộ khẩu
-  private generateSoHoKhau(): number {
+  private generateSoHoKhau() {
     //generate random number
-    return Math.floor(Math.random() * 1000000000);
+    return Math.floor(Math.random() * 1000000000).toString();
   }
 
   // Xem thông tin hộ khẩu bởi quản lí
@@ -159,6 +160,127 @@ export class HokhauService {
     }
   }
 
+  // Cập nhật hộ khẩu
+  async capNhatHoKhau(nguoiPheDuyet: User, input: CapNhatHoKhauInput) {
+    try {
+      const {
+        hoKhauId,
+        diaChiThuongTru,
+        thanhVienMoi: tvTrongHoKhauMoi,
+        nguoiYeuCauId,
+      } = input;
+      // tìm người yêu cầu
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      // kiểm tra hộ khẩu có tồn tại không
+      const hoKhauDangXet = await this.hoKhauRepo.findOne({
+        where: {
+          id: hoKhauId,
+        },
+        relations: ['thanhVien'],
+      });
+      if (!hoKhauDangXet) return createError('Input', 'Hộ khẩu không tồn tại');
+
+      const idThanhVienTrongHoKhauMoi = tvTrongHoKhauMoi.map((tv) => tv.id);
+      const idThanhVienTrongHoKhauCu = hoKhauDangXet.thanhVien.map(
+        (tv) => tv.id,
+      );
+
+      // tìm thành viên trong hộ khẩu mới
+      const thanhVienTrongHoKhauMoi = await this.userRepo.find({
+        where: {
+          id: In(idThanhVienTrongHoKhauMoi),
+        },
+      });
+      if (
+        !thanhVienTrongHoKhauMoi ||
+        thanhVienTrongHoKhauMoi.length !== tvTrongHoKhauMoi.length
+      )
+        return createError('Input', 'Thành viên mới không hợp lệ');
+
+      // kiểm tra các thành viên mới có hợp lệ để thêm không
+      const thanhVienMoiThemVao = thanhVienTrongHoKhauMoi.filter(
+        (tv) => !idThanhVienTrongHoKhauCu.map((x) => +x).includes(+tv.id),
+      );
+
+      const thanhVienBiXoa = hoKhauDangXet.thanhVien.filter(
+        (tv) => !idThanhVienTrongHoKhauMoi.map((x) => +x).includes(+tv.id),
+      );
+      thanhVienBiXoa.forEach((tv) => {
+        tv.vaiTroThanhVien = null;
+      });
+
+      const daCoHoKhau = thanhVienMoiThemVao.some((user) => user.hoKhauId);
+      if (daCoHoKhau)
+        return createError(
+          'Input',
+          'Thành viên mới thêm vào đã có hộ khẩu khác',
+        );
+
+      // kiểm tra người yêu cầu có thuộc người trong hộ khẩu không
+      const nguoiYeuCauThoaMan =
+        hoKhauDangXet.thanhVien.some((tv) => tv.id == nguoiYeuCau.id) ||
+        thanhVienTrongHoKhauMoi.some((tv) => tv.id == nguoiYeuCau.id);
+      if (!nguoiYeuCauThoaMan)
+        return createError(
+          'Input',
+          'Người yêu cầu không thuộc hộ khẩu cũ và hộ khẩu mới',
+        );
+
+      // kiểm tra xem các thành viên mới có phù hợp với logic thông thường ko, vd: tuổi con nhỏ hơn tuổi bố mẹ, đã có chủ hộ chưa ...
+      const soLuongChuHo = tvTrongHoKhauMoi.reduce(
+        (acc, cur) =>
+          acc + (cur.vaiTroThanhVien === VaiTroThanhVien.ChuHo ? 1 : 0),
+        0,
+      );
+      if (soLuongChuHo !== 1)
+        return createError('Input', 'Yêu cầu có duy nhất một chủ hộ mới');
+
+      // cập nhật vai trò của các thành viên trong bảng ngưởi dùng
+      thanhVienTrongHoKhauMoi.forEach((user) => {
+        user.vaiTroThanhVien = tvTrongHoKhauMoi.find(
+          (tv) => +tv.id === +user.id,
+        ).vaiTroThanhVien;
+      });
+
+      // cập nhật hộ khẩu
+      hoKhauDangXet.diaChiThuongTru = diaChiThuongTru;
+      hoKhauDangXet.thanhVien = thanhVienTrongHoKhauMoi;
+
+      // tạo lịch sử thay đổi hộ khẩu
+      const lichSuHoKhau = this.lichSuHoKhauRepo.create({
+        hanhDong: HanhDongHoKhau.CapNhatHoKhau,
+        thoiGian: new Date(),
+        hoKhau: hoKhauDangXet,
+        nguoiPheDuyet,
+        nguoiYeuCau,
+        ghiChu: `Cập nhật hộ khẩu, thành viên mới: ${thanhVienMoiThemVao
+          .map((tv) => `${tv.ten} (${tv.canCuocCongDan})`)
+          .join(', ')}; thành viên bị xóa: ${thanhVienBiXoa
+          .map((tv) => `${tv.ten} (${tv.canCuocCongDan})`)
+          .join(', ')}`,
+      });
+
+      // lưu vào db
+      await this.userRepo.save(thanhVienBiXoa);
+      await this.userRepo.save(thanhVienTrongHoKhauMoi);
+      await this.hoKhauRepo.save(hoKhauDangXet);
+      await this.lichSuHoKhauRepo.save(lichSuHoKhau);
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
   // Tách hộ khẩu
   async tachHoKhau(
     nguoiPheDuyet: User,
@@ -195,7 +317,7 @@ export class HokhauService {
       // 0. kiểm tra thành viên mới có thuộc hộ khẩu không
       const idThanhVienMoi = thanhVienHoKhauMoi.map((item) => +item.id);
       const idThanhVienCu = hoKhauCu.thanhVien.map((item) => +item.id);
-      const thanhVienMoi = await this.userRepo.find({
+      const tvMoi = await this.userRepo.find({
         where: {
           id: In(idThanhVienMoi),
         },
@@ -204,7 +326,7 @@ export class HokhauService {
       if (!idThanhVienCu.includes(+nguoiYeuCauId))
         return createError('Input', 'Người yêu cầu không thuộc hộ khẩu');
       // 2. kiểm tra thành viên mới có thuộc hộ khẩu không
-      for (const tv of thanhVienMoi) {
+      for (const tv of tvMoi) {
         if (tv.hoKhauId != hoKhauId)
           return createError(
             'Input',
@@ -212,7 +334,7 @@ export class HokhauService {
           );
       }
       // 3. kiểm tra chủ hộ có bị tách ra khỏi hộ khẩu không
-      for (const tv of thanhVienMoi) {
+      for (const tv of tvMoi) {
         if (tv.vaiTroThanhVien === VaiTroThanhVien.ChuHo) {
           return createError(
             'Input',
@@ -231,14 +353,14 @@ export class HokhauService {
 
       // B. Tách hộ khẩu
       // 1. Cập nhật lại vai trò của các thành viên trong hộ khẩu mới
-      thanhVienMoi.forEach((tv) => {
+      tvMoi.forEach((tv) => {
         tv.vaiTroThanhVien = thanhVienHoKhauMoi.find(
           (item) => +item.id === +tv.id,
         ).vaiTroThanhVien;
       });
       const hoKhauMoi = this.hoKhauRepo.create({
         diaChiThuongTru: diaChiThuongTruMoi,
-        thanhVien: thanhVienMoi,
+        thanhVien: tvMoi,
         soHoKhau: this.generateSoHoKhau(),
       });
       // 2. Cập nhật lại thành viên trong hộ khẩu cũ
@@ -246,17 +368,38 @@ export class HokhauService {
         (tv) => !idThanhVienMoi.includes(tv.id),
       );
       // 3. Tạo lịch sử thay đổi hộ khẩu
-      const lichSu = this.lichSuHoKhauRepo.create({
+      const lichSuTrongHoKhauCu = this.lichSuHoKhauRepo.create({
         hanhDong: HanhDongHoKhau.TachHoKhau,
         thoiGian: new Date(),
         hoKhau: hoKhauCu,
         nguoiPheDuyet,
         nguoiYeuCau,
+        ghiChu: `Tách hộ khẩu thành 2 hộ khẩu mới. Hộ khẩu cũ: ${
+          hoKhauCu.soHoKhau
+        } với thành viên: ${hoKhauCu.thanhVien
+          .map((tv) => `${tv.ten} (${tv.canCuocCongDan})`)
+          .join(', ')}. Hộ khẩu mới: ${
+          hoKhauMoi.soHoKhau
+        } với thành viên: ${hoKhauMoi.thanhVien
+          .map((tv) => `${tv.ten} (${tv.canCuocCongDan})`)
+          .join(', ')}`,
       });
+
+      const lichSuTrongHoKhauMoi = this.lichSuHoKhauRepo.create({
+        hanhDong: HanhDongHoKhau.TaoMoiHoKhau,
+        thoiGian: new Date(),
+        hoKhau: hoKhauMoi,
+        nguoiPheDuyet,
+        nguoiYeuCau,
+      });
+
       // 4. Lưu vào database
-      await this.userRepo.save(thanhVienMoi);
+      await this.userRepo.save(tvMoi);
       await this.hoKhauRepo.save([hoKhauCu, hoKhauMoi]);
-      await this.lichSuHoKhauRepo.save(lichSu);
+      await this.lichSuHoKhauRepo.save([
+        lichSuTrongHoKhauCu,
+        lichSuTrongHoKhauMoi,
+      ]);
 
       return {
         ok: true,
@@ -330,12 +473,6 @@ export class HokhauService {
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
-
-  // Xóa hộ khẩu
-  async xoaHoKhau() {}
-
-  // Đổi chủ hộ
-  async doiChuHo() {}
 
   //Xoa nguoi khoi ho khau
   async xoaNguoiKhoiHoKhau(
@@ -437,30 +574,12 @@ export class HokhauService {
     try {
       const {
         paginationInput: { page, resultsPerPage },
-        hoTen,
-        canCuocCongDan,
         soHoKhau,
       } = input;
-
-      const thanhVien = await this.userRepo.find({
-        where: {
-          ten: hoTen ? ILike(`%${hoTen}%`) : undefined,
-          canCuocCongDan: canCuocCongDan
-            ? ILike(`%${canCuocCongDan}%`)
-            : undefined,
-        },
-      });
-
-      const idHoKhau = thanhVien.map((tv) => tv.hoKhauId);
       const [hoKhau, totalResults] = await this.hoKhauRepo.findAndCount({
-        where: [
-          {
-            id: In(idHoKhau),
-          },
-          {
-            soHoKhau: soHoKhau ? soHoKhau : undefined,
-          },
-        ],
+        where: {
+          soHoKhau: soHoKhau ? ILike(`%${soHoKhau}%`) : undefined,
+        },
         relations: {
           thanhVien: true,
         },
@@ -470,7 +589,6 @@ export class HokhauService {
           updatedAt: SortOrder.DESC,
         }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
       });
-
       return {
         ok: true,
         hoKhau,

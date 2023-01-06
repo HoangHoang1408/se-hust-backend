@@ -11,6 +11,7 @@ import { HoKhau } from './hokhau.entity';
 
 export enum HanhDongHoKhau {
   TaoMoiHoKhau = 'Tạo mới hộ khẩu',
+  CapNhatHoKhau = 'Cập nhật hộ khẩu',
   ThemThanhVien = 'Thêm thành viên',
   XoaThanhVien = 'Xóa thành viên',
   ThayDoiChuHo = 'Thay đổi chủ hộ',

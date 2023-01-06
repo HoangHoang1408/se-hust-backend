@@ -100,20 +100,16 @@ export class XemLichSuThayDoiNhanKhauOutput extends CoreOutput {
   @Field(() => LichSuHoKhau, { nullable: true })
   lichSuHoKhau?: LichSuHoKhau[];
 }
+
 @InputType()
 export class XemDanhSachHoKhauInput {
   @Field(() => PaginationInput)
   paginationInput: PaginationInput;
 
   @Field({ nullable: true })
-  hoTen?: string;
-
-  @Field({ nullable: true })
-  canCuocCongDan?: string;
-
-  @Field({ nullable: true })
-  soHoKhau?: number;
+  soHoKhau?: string;
 }
+
 @ObjectType()
 export class XemDanhSachHoKhauOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })
@@ -122,3 +118,21 @@ export class XemDanhSachHoKhauOutput extends CoreOutput {
   @Field(() => [HoKhau], { nullable: true })
   hoKhau?: HoKhau[];
 }
+
+@InputType()
+export class CapNhatHoKhauInput {
+  @Field(() => ID)
+  hoKhauId: number;
+
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field()
+  diaChiThuongTru: string;
+
+  @Field(() => [ThanhVien])
+  thanhVienMoi: ThanhVien[];
+}
+
+@ObjectType()
+export class CapNhatHoKhauOutput extends CoreOutput {}

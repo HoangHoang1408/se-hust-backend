@@ -3,6 +3,8 @@ import { Roles } from 'src/auth/role.decorator';
 import { CurrentUser } from 'src/auth/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import {
+  CapNhatHoKhauInput,
+  CapNhatHoKhauOutput,
   TachHoKhauInput,
   TachHoKhauOutput,
   ThemHoKhauInput,
@@ -46,6 +48,15 @@ export class HokhauResolver {
     return this.hoKhauService.themHoKhau(nguoiPheDuyet, input);
   }
 
+  @Mutation(() => CapNhatHoKhauOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  capNhatHoKhau(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: CapNhatHoKhauInput,
+  ) {
+    return this.hoKhauService.capNhatHoKhau(nguoiPheDuyet, input);
+  }
+
   @Mutation(() => TachHoKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
   tachHoKhau(
@@ -54,6 +65,7 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.tachHoKhau(nguoiPheDuyet, input);
   }
+  
   @Mutation(() => ThemNguoiVaoHoKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
   themNguoiVaoHoKhau(
