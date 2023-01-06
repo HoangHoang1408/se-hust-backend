@@ -23,6 +23,7 @@ import {
   Entity,
   ManyToOne,
   RelationId,
+  Unique,
 } from 'typeorm';
 
 export enum VaitroNguoiDung {
@@ -61,6 +62,8 @@ registerEnumType(VaiTroThanhVien, {
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
+@Unique(['canCuocCongDan'])
+@Unique(['soDienThoai'])
 export class User extends CoreEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })

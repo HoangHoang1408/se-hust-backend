@@ -10,7 +10,7 @@ import { LichSuHoKhau } from './lichsuhokhau.entity';
 export class HoKhau extends CoreEntity {
   @Field()
   @Column()
-  soHoKhau: number;
+  soHoKhau: string;
 
   @Field()
   @Column()
