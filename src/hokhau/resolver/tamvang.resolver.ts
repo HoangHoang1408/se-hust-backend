@@ -7,7 +7,6 @@ import {
   AddTamVangOutput,
   suaThongTinTamVangOutput,
   suaThongTinTamVangInput,
-  xemThongTinTamVangOutput,
   xemDanhSachTamVangInput,
   xemDanhSachTamVangOutput,
 } from '../dto/tamvang.dto';
