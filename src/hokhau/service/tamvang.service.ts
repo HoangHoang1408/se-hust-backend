@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import {
   AddTamVangInput,
   AddTamVangOutput,
-  xemThongTinTamVangOutput,
+  xemDanhSachTamVangInput,
+  xemDanhSachTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -75,11 +77,11 @@ export class TamVangService {
           hanhDong: HanhDongHoKhau.DangKyTamVang,
           thoiGian: new Date(),
           nguoiPheDuyet,
-          nguoiYeuCau:user,
+          nguoiYeuCau: user,
           hoKhau,
         }),
       );
-      
+
       await this.TamVangRepo.save(
         this.TamVangRepo.create({
           nguoiPheDuyet,
@@ -96,24 +98,46 @@ export class TamVangService {
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
-  async xemThongTinTamVang(
-    currentUser: User,
-  ): Promise<xemThongTinTamVangOutput> {
+  async xemDanhSachTamVang(
+    input: xemDanhSachTamVangInput,
+  ): Promise<xemDanhSachTamVangOutput> {
     try {
-      const tamvang = await this.TamVangRepo.findOne({
+      const {
+        paginationInput: { page, resultsPerPage },
+        canCuocCongDan,
+      } = input;
+
+      const tamVang = await this.TamVangRepo.find({
         where: {
           nguoiTamVang: {
-            id: currentUser.id,
+            canCuocCongDan: canCuocCongDan
+              ? ILike(`%${canCuocCongDan}%`)
+              : undefined,
           },
         },
       });
-      if (!tamvang)
-        return createError(
-          'Input',
-          'Người dùng không tồn tại trong bảng tạm vắng',
-        );
+
+      const idTamVang = tamVang.map((tv) => tv.id);
+      const [TamVang, totalResults] = await this.TamVangRepo.findAndCount({
+        where: [
+          {
+            id: In(idTamVang),
+          },
+        ],
+        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
+        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        order: {
+          updatedAt: SortOrder.DESC,
+        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+      });
+
       return {
         ok: true,
+        tamVang: tamVang,
+        paginationOutput: {
+          totalResults,
+          totalPages: Math.ceil(totalResults / resultsPerPage),
+        },
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
