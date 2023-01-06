@@ -7,6 +7,8 @@ import {
   AddTamVangInput,
   AddTamVangOutput,
   xemThongTinTamVangOutput,
+  suaThongTinTamVangInput,
+  suaThongTinTamVangOutput,
 } from '../dto/tamvang.dto';
 import { TamVang } from '../entity/tamvang.entity';
 
@@ -94,6 +96,51 @@ export class TamVangService {
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async suaThongTinTamVang(
+    nguoiPheDuyet: User,
+    input: suaThongTinTamVangInput,
+  ): Promise<suaThongTinTamVangOutput> {
+    try {
+      const { nguoiYeuCauId, bangTamVangId, lyDoTamVang, diaChiNoiDenMoi } =
+        input;
+
+      const userYeuCau = await this.userRepo.findOne({
+        where: { id: nguoiYeuCauId },
+      });
+
+      const tamVang = await this.TamVangRepo.findOne({
+        where: { id: bangTamVangId },
+        select: ['nguoiTamVang', 'id'],
+        relations: ['nguoiTamVang'],
+      });
+
+      if (!tamVang)
+        return createError(
+          'Input',
+          'Thông tin id của bảng tạm vắng sai hoặc không tồn tại!',
+        );
+
+      if (userYeuCau.id !== tamVang.nguoiTamVang.id)
+        return createError(
+          'Input',
+          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
+        );
+
+      tamVang.lyDoTamVang = lyDoTamVang;
+      tamVang.diaChiNoiDen = diaChiNoiDenMoi;
+      tamVang.ngayBatDauTamVang = new Date();
+      tamVang.nguoiPheDuyet = nguoiPheDuyet;
+
+      await this.TamVangRepo.save(tamVang);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
 }
