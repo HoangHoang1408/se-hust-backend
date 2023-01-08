@@ -170,8 +170,7 @@ export class DongGopService {
           },
           trangThai: trangThai ? true : false,
           hoKhau: {
-            // soHoKhau: sohoKhau ? ILike(`%${sohoKhau}%`) : undefined,
-            soHoKhau: sohoKhau,
+            soHoKhau: sohoKhau ? ILike(`%${sohoKhau}%`) : undefined,
           },
           nguoiTamTru: {
             canCuocCongDan: canCuocCongDan

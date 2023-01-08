@@ -33,7 +33,7 @@ export class KhoanPhiResolver {
     return this.KhoanPhiService.XemKhoanPhiChiTietChoQuanLi(input);
   }
   @Query(() => xemDanhSachKhoanPhiChoNguoiQuanLiOutput)
-  @Roles(['KeToan', 'ToPho', 'ToTruong'])
+  @Roles(['Any'])
   XemDanhSachKhoanPhiChoNguoiQuanLi(
     @Args('input') input: xemDanhSachKhoanPhiChoNguoiQuanLiInput,
   ) {

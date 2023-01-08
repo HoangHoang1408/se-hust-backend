@@ -51,7 +51,7 @@ export class KhoanPhiService {
         },
       });
       if (khoanphi) return createError('Input', 'Khoản phí này đã được thêm ');
-      if (ngayHetHan > ngayPhatDong)
+      if (ngayHetHan < ngayPhatDong)
         return createError('Input', 'Ngày hết hạn đang sớm hơn ngày phát động');
       let dongGop = [];
       if (loaiPhi == LoaiPhi.BatBuoc) {
