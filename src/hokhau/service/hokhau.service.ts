@@ -556,13 +556,23 @@ export class HokhauService {
             id: input.hoKhauId,
           },
         },
+        relations: {
+          nguoiPheDuyet: true,
+          nguoiYeuCau: true,
+          hoKhau: true,
+          // hoKhau:{
+          //   thanhVien:true
+          // }
+        }
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
+      console.log(lichSuHoKhau);
       return {
         ok: true,
         lichSuHoKhau,
       };
     } catch (error) {
+      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
