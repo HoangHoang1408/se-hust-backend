@@ -5,7 +5,7 @@ import { createError } from 'src/common/utils/createError';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
 import { TamTru } from 'src/hokhau/entity/tamtru.entity';
 import { User } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddKhoanPhiInput,
   AddKhoanPhiOutput,
@@ -128,22 +128,14 @@ export class KhoanPhiService {
         paginationInput: { page, resultsPerPage },
         theoHoKhau,
         tenKhoanPhi,
+        loaiPhi,
       } = input;
-
-      const khoanPhi = await this.khoanphiRepo.find({
+      const [khoanPhi, totalResults] = await this.khoanphiRepo.findAndCount({
         where: {
           tenKhoanPhi: tenKhoanPhi ? ILike(`%${tenKhoanPhi}%`) : undefined,
-          loaiPhi: theoHoKhau ? ILike(`%${theoHoKhau}%`) : undefined,
+          loaiPhi: loaiPhi || undefined,
+          theoHoKhau: theoHoKhau || undefined,
         },
-      });
-
-      const idKhoanPhi = khoanPhi.map((kp) => kp.id);
-      const [KhoanPhi, totalResults] = await this.khoanphiRepo.findAndCount({
-        where: [
-          {
-            id: In(idKhoanPhi),
-          },
-        ],
         skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
         take: resultsPerPage, // lấy bao nhiêu bản ghi
         order: {
@@ -153,7 +145,7 @@ export class KhoanPhiService {
 
       return {
         ok: true,
-        khoanPhi: KhoanPhi,
+        khoanPhi,
         paginationOutput: {
           totalResults,
           totalPages: Math.ceil(totalResults / resultsPerPage),

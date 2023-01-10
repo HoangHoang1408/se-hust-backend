@@ -1,7 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Roles } from 'src/auth/role.decorator';
-import { CurrentUser } from 'src/auth/user.decorator';
-import { User } from 'src/user/entities/user.entity';
 import {
   AddDongGopInput,
   AddDongGopOutput,
@@ -19,11 +17,8 @@ export class DongGopResolver {
 
   @Mutation(() => AddDongGopOutput)
   @Roles(['KeToan'])
-  async addDongGop(
-    @CurrentUser() nguoiTao: User,
-    @Args('input') input: AddDongGopInput,
-  ) {
-    return this.DongGopService.addDongGop(nguoiTao, input);
+  async addDongGop(@Args('input') input: AddDongGopInput) {
+    return this.DongGopService.addDongGop(input);
   }
 
   @Mutation(() => EditDongGopOutput)

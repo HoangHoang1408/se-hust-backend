@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { omitBy } from 'lodash';
-import { ppid } from 'process';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
 import { TamTru } from 'src/hokhau/entity/tamtru.entity';
-import { User } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddDongGopInput,
   AddDongGopOutput,
@@ -34,10 +31,7 @@ export class DongGopService {
   ) {}
 
   //    thêm đóng góp
-  async addDongGop(
-    nguoiTao: User,
-    input: AddDongGopInput,
-  ): Promise<AddDongGopOutput> {
+  async addDongGop(input: AddDongGopInput): Promise<AddDongGopOutput> {
     try {
       const { KhoanPhiId, soTienDongGop, hoKhauId, nguoiTamTruId } = input;
       // kiểm tra xem hộ khẩu hoặc người tạm trú này có tồn tại hay không
@@ -86,8 +80,7 @@ export class DongGopService {
             trangThai: true,
           }),
         );
-      }
-      if (nguoitamtru) {
+      } else if (nguoitamtru) {
         //kiểm tra xem khoản đóng góp của người này này đã được thêm vào trước đó chưa
         const donggop = await this.donggopRepo.findOne({
           where: {
@@ -119,7 +112,6 @@ export class DongGopService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
@@ -161,14 +153,13 @@ export class DongGopService {
         sohoKhau,
         canCuocCongDan,
       } = input;
-
-      const donggop = await this.donggopRepo.find({
+      const [dongGop, totalResults] = await this.donggopRepo.findAndCount({
         where: {
           khoanPhi: {
             tenKhoanPhi: tenKhoanPhi ? ILike(`%${tenKhoanPhi}%`) : undefined,
-            loaiPhi: loaiPhi ? ILike(`%${loaiPhi}%`) : undefined,
+            loaiPhi: loaiPhi || undefined,
           },
-          trangThai: trangThai ? true : false,
+          trangThai,
           hoKhau: {
             soHoKhau: sohoKhau ? ILike(`%${sohoKhau}%`) : undefined,
           },
@@ -178,15 +169,6 @@ export class DongGopService {
               : undefined,
           },
         },
-      });
-
-      const idDongGop = donggop.map((dg) => dg.id);
-      const [dongGop, totalResults] = await this.donggopRepo.findAndCount({
-        where: [
-          {
-            id: In(idDongGop),
-          },
-        ],
         skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
         take: resultsPerPage, // lấy bao nhiêu bản ghi
         order: {

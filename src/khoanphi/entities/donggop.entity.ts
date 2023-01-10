@@ -26,9 +26,9 @@ export class DongGop extends CoreEntity {
   @Column()
   trangThai: boolean;
 
-  @Field(() => Date)
+  @Field(() => Date, {nullable:true})
   @Column('timestamp without time zone', { nullable: true })
-  ngayNop: Date;
+  ngayNop?: Date;
 
   @Field()
   @Column()

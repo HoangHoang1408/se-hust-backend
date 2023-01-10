@@ -1,11 +1,4 @@
-import {
-  Field,
-  ID,
-  InputType,
-  ObjectType,
-  OmitType,
-  PickType,
-} from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType, PickType } from '@nestjs/graphql';
 import {
   CoreOutput,
   PaginationInput,
@@ -42,6 +35,9 @@ export class xemDanhSachKhoanPhiChoNguoiQuanLiInput {
 
   @Field({ nullable: true })
   tenKhoanPhi?: string;
+
+  @Field(() => LoaiPhi, { nullable: true })
+  loaiPhi?: LoaiPhi;
 
   @Field({ nullable: true })
   theoHoKhau?: boolean;

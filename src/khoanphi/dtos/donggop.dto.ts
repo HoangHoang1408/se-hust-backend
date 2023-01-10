@@ -1,18 +1,17 @@
-import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import {
   CoreOutput,
   PaginationInput,
   PaginationOutput,
 } from 'src/common/dto/output.dto';
-import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
-import { User } from 'src/user/entities/user.entity';
 import { DongGop } from '../entities/donggop.entity';
-import { KhoanPhi } from '../entities/khoanphi.entity';
+import { LoaiPhi } from '../entities/khoanphi.entity';
 
 @InputType()
 export class AddDongGopInput {
   @Field()
   KhoanPhiId: number;
+
   @Field()
   soTienDongGop: number;
 
@@ -53,12 +52,13 @@ export class xemDanhSachDongGopChoNguoiQuanLiInput {
   @Field({ nullable: true })
   canCuocCongDan?: string;
 
-  @Field({ nullable: true })
-  loaiPhi?: string;
+  @Field(() => LoaiPhi, { nullable: true })
+  loaiPhi?: LoaiPhi;
 
   @Field({ nullable: true })
-  trangThai?: string;
+  trangThai?: boolean;
 }
+
 @ObjectType()
 export class xemDanhSachDongGopChoNguoiQuanLiOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })

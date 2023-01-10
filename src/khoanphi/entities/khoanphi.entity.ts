@@ -4,9 +4,8 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsIn } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { DongGop } from './donggop.entity';
 
@@ -22,7 +21,6 @@ registerEnumType(LoaiPhi, {
 @Entity()
 export class KhoanPhi extends CoreEntity {
   @ManyToOne(() => User)
-  @JoinColumn()
   nguoiTao: User;
 
   @Field()
@@ -37,7 +35,7 @@ export class KhoanPhi extends CoreEntity {
   @Column('enum', {
     enum: LoaiPhi,
   })
-  loaiPhi: string;
+  loaiPhi: LoaiPhi;
 
   @Field(() => Date)
   @Column('timestamp without time zone')
@@ -51,9 +49,9 @@ export class KhoanPhi extends CoreEntity {
   @Column()
   theoHoKhau: boolean;
 
-  @Field()
-  @Column()
-  soTien: number;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  soTien?: number;
 
   @Field({ nullable: true })
   @Column({ nullable: true })

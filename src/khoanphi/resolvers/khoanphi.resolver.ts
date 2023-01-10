@@ -18,7 +18,7 @@ export class KhoanPhiResolver {
   constructor(private readonly KhoanPhiService: KhoanPhiService) {}
 
   @Mutation(() => AddKhoanPhiOutput)
-  @Roles(['Any'])
+  @Roles(['KeToan'])
   async addKhoanPhi(
     @CurrentUser() nguoiTao: User,
     @Args('input') input: AddKhoanPhiInput,
@@ -26,14 +26,14 @@ export class KhoanPhiResolver {
     return this.KhoanPhiService.addKhoanPhi(nguoiTao, input);
   }
   @Query(() => XemKhoanPhiChiTietChoQuanLiOutput)
-  @Roles(['KeToan', 'ToPho', 'ToTruong'])
+  @Roles(['KeToan'])
   xemKhoanPhiChiTietChoNguoiQuanLi(
     @Args('input') input: XemKhoanPhiChiTietChoQuanLiInput,
   ) {
     return this.KhoanPhiService.XemKhoanPhiChiTietChoQuanLi(input);
   }
   @Query(() => xemDanhSachKhoanPhiChoNguoiQuanLiOutput)
-  @Roles(['Any'])
+  @Roles(['KeToan'])
   XemDanhSachKhoanPhiChoNguoiQuanLi(
     @Args('input') input: xemDanhSachKhoanPhiChoNguoiQuanLiInput,
   ) {
