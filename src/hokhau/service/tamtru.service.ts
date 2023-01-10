@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
   suaThongTinTamTruInput,
   suaThongTinTamTruOutput,
-  xemThongTinTamTruOutput,
+  xemDanhSachTamTruInput,
+  xemDanhSachTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 @Injectable()
@@ -72,23 +74,46 @@ export class TamTruService {
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
-  async xemThongTinTamTru(currentUser: User): Promise<xemThongTinTamTruOutput> {
+  async xemDanhSachTamTru(
+    input: xemDanhSachTamTruInput,
+  ): Promise<xemDanhSachTamTruOutput> {
     try {
-      const tamtru = await this.tamTruRepo.findOne({
+      const {
+        paginationInput: { page, resultsPerPage },
+        canCuocCongDan,
+      } = input;
+
+      const tamTru = await this.tamTruRepo.find({
         where: {
           nguoiTamTru: {
-            id: currentUser.id,
+            canCuocCongDan: canCuocCongDan
+              ? ILike(`%${canCuocCongDan}%`)
+              : undefined,
           },
         },
       });
-      if (!tamtru)
-        return createError(
-          'Input',
-          'Người dùng không tồn tại trong bảng tạm trú',
-        );
+
+      const idTamTru = tamTru.map((tv) => tv.id);
+      const [TamTru, totalResults] = await this.tamTruRepo.findAndCount({
+        where: [
+          {
+            id: In(idTamTru),
+          },
+        ],
+        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
+        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        order: {
+          updatedAt: SortOrder.DESC,
+        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+      });
+
       return {
         ok: true,
-        tamtru,
+        tamTru: tamTru,
+        paginationOutput: {
+          totalResults,
+          totalPages: Math.ceil(totalResults / resultsPerPage),
+        },
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

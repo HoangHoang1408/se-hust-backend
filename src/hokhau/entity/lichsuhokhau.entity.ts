@@ -20,6 +20,7 @@ export enum HanhDongHoKhau {
   TachHoKhau = 'Tách hộ khẩu',
   XoaHoKhau = 'Xóa hộ khẩu',
   XoaNguoiKhoiHoKhau = 'Xóa người khỏi hộ khẩu',
+  DangKyTamVang="Đăng ký tạm vắng",
 }
 registerEnumType(HanhDongHoKhau, {
   name: 'LoaiThayDoiHoKhau',

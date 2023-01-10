@@ -5,9 +5,10 @@ import { User } from 'src/user/entities/user.entity';
 import {
   AddTamTruInput,
   AddTamTruOutput,
+  xemDanhSachTamTruInput,
+  xemDanhSachTamTruOutput,
   suaThongTinTamTruInput,
   suaThongTinTamTruOutput,
-  xemThongTinTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 import { TamTruService } from '../service/tamtru.service';
@@ -24,10 +25,10 @@ export class TamTruResolver {
   ) {
     return this.tamTruService.addTamTru(nguoiPheDuyet, input);
   }
-  @Query(() => xemThongTinTamTruOutput)
-  @Roles(['Any'])
-  xemThongTinTamTru(@CurrentUser() user: User) {
-    return this.tamTruService.xemThongTinTamTru(user);
+  @Query(() => xemDanhSachTamTruOutput)
+  @Roles(['ToPho', 'ToTruong'])
+  xemDanhSachTamTru(@Args('input') input: xemDanhSachTamTruInput) {
+    return this.tamTruService.xemDanhSachTamTru(input);
   }
   @Mutation(() => suaThongTinTamTruOutput)
   @Roles(['ToTruong', 'ToPho'])
