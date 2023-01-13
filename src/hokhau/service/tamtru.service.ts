@@ -90,13 +90,15 @@ export class TamTruService {
               : undefined,
           },
         },
+        relations: {
+          nguoiTamTru: true,
+        },
         skip: (page - 1) * resultsPerPage,
         take: resultsPerPage,
         order: {
           updatedAt: SortOrder.DESC,
         },
       });
-      console.log(tamTru);
       return {
         ok: true,
         tamTru,
