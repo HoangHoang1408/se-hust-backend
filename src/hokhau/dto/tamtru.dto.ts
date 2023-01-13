@@ -40,7 +40,7 @@ export class suaThongTinTamTruInput extends CoreOutput {
 
   @Field(() => ID)
   bangTamTruId: number;
-  
+
   @Field()
   noiTamTruMoi: string;
 }

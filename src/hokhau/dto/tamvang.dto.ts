@@ -1,5 +1,9 @@
 import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
-import { CoreOutput, PaginationInput, PaginationOutput } from 'src/common/dto/output.dto';
+import {
+  CoreOutput,
+  PaginationInput,
+  PaginationOutput,
+} from 'src/common/dto/output.dto';
 import { TamVang } from '../entity/tamvang.entity';
 
 @InputType()
