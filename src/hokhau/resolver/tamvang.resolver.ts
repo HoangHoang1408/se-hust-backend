@@ -9,6 +9,8 @@ import {
   suaThongTinTamVangInput,
   xemDanhSachTamVangInput,
   xemDanhSachTamVangOutput,
+  XoaTamVangOutput,
+  XoaTamVangInput,
 } from '../dto/tamvang.dto';
 import { TamVang } from '../entity/tamvang.entity';
 import { TamVangService } from '../service/tamvang.service';
@@ -26,7 +28,6 @@ export class TamVangResolver {
     return this.tamVangService.addTamVang(nguoiPheDuyet, input);
   }
 
-
   @Mutation(() => suaThongTinTamVangOutput)
   @Roles(['ToTruong', 'ToPho'])
   async suaThongTinTamVang(
@@ -36,10 +37,17 @@ export class TamVangResolver {
     return this.tamVangService.suaThongTinTamVang(nguoiPheDuyet, input);
   }
 
-  
   @Query(() => xemDanhSachTamVangOutput)
   @Roles(['ToTruong', 'ToPho'])
   xemDanhSachTamVang(@Args('input') input: xemDanhSachTamVangInput) {
     return this.tamVangService.xemDanhSachTamVang(input);
+  }
+  @Mutation(() => XoaTamVangOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  async xoaTamVang(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: XoaTamVangInput,
+  ) {
+    return this.tamVangService.xoaTamVang(nguoiPheDuyet, input);
   }
 }

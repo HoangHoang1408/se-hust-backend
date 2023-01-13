@@ -11,6 +11,8 @@ import {
   suaThongTinTamTruOutput,
   xemDanhSachTamTruInput,
   xemDanhSachTamTruOutput,
+  XoaTamTruInput,
+  XoaTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 @Injectable()
@@ -169,6 +171,59 @@ export class TamTruService {
     } catch (error) {
       console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+  async xoaTamTru(
+    nguoiPheDuyet: User,
+    input: XoaTamTruInput,
+  ): Promise<XoaTamTruOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //Kiểm tra người yêu cầu có phải chủ hộ không
+      if (nguoiYeuCau.vaiTroThanhVien == 'Chủ hộ')
+        return createError('Input', 'Cần chuyển vai trò thành viên');
+      //Kiểm tra người yêu cầu có hộ khẩu cư trú ở đây không
+      if (!nguoiYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người này không có hộ khẩu cư trú trong khu dân cư',
+        );
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm trú không
+      const TamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: nguoiYeuCauId,
+          },
+        },
+      });
+      if (!TamTru)
+        return createError('Input', 'Người yêu cầu chưa đăng ký tạm trú!');
+      //xóa tạm trú
+      await this.tamTruRepo.delete(TamTru.id);
+      //lưu vào database
+      await this.tamTruRepo.save(
+        this.tamTruRepo.create({
+          nguoiPheDuyet,
+          nguoiTamTru: nguoiYeuCau,
+        }),
+      );
+      this.tamTruRepo.save(nguoiYeuCau);
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }

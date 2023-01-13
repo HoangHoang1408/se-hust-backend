@@ -8,6 +8,8 @@ import {
   CapNhatHoKhauInput,
   TachHoKhauInput,
   TachHoKhauOutput,
+  ThayDoiChuHoInput,
+  ThayDoiChuHoOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
   ThemNguoiVaoHoKhauInput,
@@ -563,7 +565,7 @@ export class HokhauService {
           // hoKhau:{
           //   thanhVien:true
           // }
-        }
+        },
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
       console.log(lichSuHoKhau);
@@ -606,6 +608,80 @@ export class HokhauService {
           totalResults,
           totalPages: Math.ceil(totalResults / resultsPerPage),
         },
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  // Đổi chủ hộ
+  async thayDoiChuHo(
+    nguoiPheDuyet: User,
+    input: ThayDoiChuHoInput,
+  ): Promise<ThayDoiChuHoOutput> {
+    try {
+      const { nguoiYeuCauId, hoKhauId, thayDoiVaiTroThanhVien } = input;
+
+      //Kiểm tra hộ khẩu có tồn tại không
+      const hoKhau = await this.hoKhauRepo.findOne({
+        where: {
+          id: hoKhauId,
+        },
+        relations: {
+          thanhVien: true,
+        },
+      });
+      if (!hoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
+
+      //kiểm tra tồn tại người yêu cầu không
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không hợp lệ');
+
+      //Kiểm tra người yêu cầu có thuộc hộ khẩu không
+      if (nguoiYeuCau.hoKhauId != hoKhauId)
+        return createError('Input', 'Người yêu cầu không thuộc hộ khẩu');
+
+      // //Cập nhật vai trò thành viên
+      const idThanhVien = thayDoiVaiTroThanhVien.map((item) => +item.id);
+      const thanhVien = await this.userRepo.find({
+        where: {
+          id: In(idThanhVien),
+        },
+      });
+      if (thanhVien.length != hoKhau.thanhVien.length)
+        return createError('Input', 'Nhập thiếu thành viên');
+
+      //Kiểm tra thành viên nhập vào có thuộc hộ khẩu không
+      for (const tv of thanhVien)
+        if (tv.hoKhauId != hoKhauId)
+          return createError('Input', 'Thành viên không thuộc hộ khẩu');
+      thanhVien.forEach((tv) => {
+        tv.vaiTroThanhVien = thayDoiVaiTroThanhVien.find(
+          (item) => +item.id === +tv.id,
+        ).vaiTroThanhVien;
+      });
+
+      //Tạo lịch sử Thay đổi chủ hộ
+      const lichSu = this.lichSuHoKhauRepo.create({
+        hanhDong: HanhDongHoKhau.ThayDoiChuHo,
+        thoiGian: new Date(),
+        hoKhau: hoKhau,
+        nguoiPheDuyet,
+        nguoiYeuCau,
+      });
+
+      //Lưu vào database
+      await this.userRepo.save(thanhVien);
+      await this.hoKhauRepo.save(hoKhau);
+      await this.lichSuHoKhauRepo.save(lichSu);
+
+      return {
+        ok: true,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

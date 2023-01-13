@@ -136,3 +136,18 @@ export class CapNhatHoKhauInput {
 
 @ObjectType()
 export class CapNhatHoKhauOutput extends CoreOutput {}
+
+@InputType()
+export class ThayDoiChuHoInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+
+  @Field(() => ID)
+  hoKhauId: number;
+
+  @Field(() => [ThanhVien])
+  thayDoiVaiTroThanhVien: ThanhVien[];
+}
+
+@ObjectType()
+export class ThayDoiChuHoOutput extends CoreOutput {}

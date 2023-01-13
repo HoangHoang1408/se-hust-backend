@@ -9,6 +9,8 @@ import {
   xemDanhSachTamTruOutput,
   suaThongTinTamTruInput,
   suaThongTinTamTruOutput,
+  XoaTamTruOutput,
+  XoaTamTruInput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 import { TamTruService } from '../service/tamtru.service';
@@ -37,5 +39,13 @@ export class TamTruResolver {
     @Args('input') input: suaThongTinTamTruInput,
   ) {
     return this.tamTruService.suaThongTinTamTru(nguoiPheDuyet, input);
+  }
+  @Mutation(() => XoaTamTruOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  async xoaTamTru(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: XoaTamTruInput,
+  ) {
+    return this.tamTruService.xoaTamTru(nguoiPheDuyet, input);
   }
 }

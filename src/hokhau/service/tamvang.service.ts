@@ -11,6 +11,8 @@ import {
   suaThongTinTamVangOutput,
   xemDanhSachTamVangInput,
   xemDanhSachTamVangOutput,
+  XoaTamVangInput,
+  XoaTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -188,6 +190,62 @@ export class TamVangService {
     } catch (error) {
       console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+
+  //Xóa đăng ký tạm vắng
+  async xoaTamVang(
+    nguoiPheDuyet: User,
+    input: XoaTamVangInput,
+  ): Promise<XoaTamVangOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //Kiểm tra người yêu cầu có phải chủ hộ không
+      if (nguoiYeuCau.vaiTroThanhVien == 'Chủ hộ')
+        return createError('Input', 'Cần chuyển vai trò thành viên');
+      //Kiểm tra người yêu cầu có hộ khẩu cư trú không
+      if (!nguoiYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người này không có hộ khẩu cư trú trong khu dân cư',
+        );
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm vắng không
+      const TamVang = await this.TamVangRepo.findOne({
+        where: {
+          nguoiTamVang: {
+            id: nguoiYeuCau.id,
+          },
+        },
+      });
+      if (!TamVang)
+        return createError('Input', 'Người yêu cầu chưa đăng ký tạm vắng !');
+      //xóa tạm trú
+      nguoiYeuCau.ghiChu = null;
+      //nguoiYeuCau.tamVang=false;
+      //lưu vào database
+      await this.TamVangRepo.save(
+        this.TamVangRepo.create({
+          nguoiPheDuyet,
+          nguoiTamVang: nguoiYeuCau,
+        }),
+      );
+      this.TamVangRepo.save(nguoiYeuCau);
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }

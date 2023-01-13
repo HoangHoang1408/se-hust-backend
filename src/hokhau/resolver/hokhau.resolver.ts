@@ -7,6 +7,8 @@ import {
   CapNhatHoKhauOutput,
   TachHoKhauInput,
   TachHoKhauOutput,
+  ThayDoiChuHoInput,
+  ThayDoiChuHoOutput,
   ThemHoKhauInput,
   ThemHoKhauOutput,
   ThemNguoiVaoHoKhauInput,
@@ -65,7 +67,7 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.tachHoKhau(nguoiPheDuyet, input);
   }
-  
+
   @Mutation(() => ThemNguoiVaoHoKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
   themNguoiVaoHoKhau(
@@ -104,5 +106,14 @@ export class HokhauResolver {
   @Roles(['ToTruong', 'ToPho'])
   xemDanhSachHoKhau(@Args('input') input: XemDanhSachHoKhauInput) {
     return this.hoKhauService.xemDanhSachHoKhau(input);
+  }
+
+  @Mutation(() => ThayDoiChuHoOutput)
+  @Roles(['ToTruong', 'ToPho'])
+  thayDoiChuHo(
+    @CurrentUser() nguoiPheDuyet: User,
+    @Args('input') input: ThayDoiChuHoInput,
+  ) {
+    return this.hoKhauService.thayDoiChuHo(nguoiPheDuyet, input);
   }
 }
