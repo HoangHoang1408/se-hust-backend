@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
@@ -82,8 +82,7 @@ export class TamTruService {
         paginationInput: { page, resultsPerPage },
         canCuocCongDan,
       } = input;
-
-      const tamTru = await this.tamTruRepo.find({
+      const [tamTru, totalResults] = await this.tamTruRepo.findAndCount({
         where: {
           nguoiTamTru: {
             canCuocCongDan: canCuocCongDan
@@ -91,25 +90,16 @@ export class TamTruService {
               : undefined,
           },
         },
-      });
-
-      const idTamTru = tamTru.map((tv) => tv.id);
-      const [TamTru, totalResults] = await this.tamTruRepo.findAndCount({
-        where: [
-          {
-            id: In(idTamTru),
-          },
-        ],
-        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
-        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        skip: (page - 1) * resultsPerPage,
+        take: resultsPerPage,
         order: {
           updatedAt: SortOrder.DESC,
-        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+        },
       });
-
+      console.log(tamTru);
       return {
         ok: true,
-        tamTru: tamTru,
+        tamTru,
         paginationOutput: {
           totalResults,
           totalPages: Math.ceil(totalResults / resultsPerPage),

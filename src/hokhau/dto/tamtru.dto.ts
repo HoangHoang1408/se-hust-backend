@@ -29,7 +29,7 @@ export class xemDanhSachTamTruOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })
   paginationOutput?: PaginationOutput;
 
-  @Field(() => TamTru, { nullable: true })
+  @Field(() => [TamTru], { nullable: true })
   tamTru?: TamTru[];
 }
 
@@ -37,8 +37,10 @@ export class xemDanhSachTamTruOutput extends CoreOutput {
 export class suaThongTinTamTruInput extends CoreOutput {
   @Field(() => ID)
   nguoiYeuCauId: number;
+
   @Field(() => ID)
   bangTamTruId: number;
+  
   @Field()
   noiTamTruMoi: string;
 }
