@@ -27,7 +27,7 @@ export class TamVang extends CoreEntity {
   @Column({ nullable: true })
   diaChiNoiDen?: string;
 
-  @Field({ nullable: true })
+  @Field(() => Date)
   @Column({ nullable: true })
   ngayHetHieuLuc?: Date;
 }
