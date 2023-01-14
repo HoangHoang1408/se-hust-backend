@@ -563,7 +563,7 @@ export class HokhauService {
           // hoKhau:{
           //   thanhVien:true
           // }
-        }
+        },
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
       console.log(lichSuHoKhau);

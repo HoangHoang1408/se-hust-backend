@@ -1,5 +1,9 @@
 import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
-import { CoreOutput, PaginationInput, PaginationOutput } from 'src/common/dto/output.dto';
+import {
+  CoreOutput,
+  PaginationInput,
+  PaginationOutput,
+} from 'src/common/dto/output.dto';
 import { TamVang } from '../entity/tamvang.entity';
 
 @InputType()
@@ -46,3 +50,11 @@ export class suaThongTinTamVangInput {
 
 @ObjectType()
 export class suaThongTinTamVangOutput extends CoreOutput {}
+
+@InputType()
+export class hetTamVangInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+}
+@ObjectType()
+export class hetTamVangOutput extends CoreOutput {}
