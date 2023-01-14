@@ -1,3 +1,4 @@
+import { TamTru } from 'src/hokhau/entity/tamtru.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
@@ -30,6 +31,7 @@ export class HokhauService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(LichSuHoKhau)
     private readonly lichSuHoKhauRepo: Repository<LichSuHoKhau>,
+    @InjectRepository(TamTru) private readonly tamTruRepo: Repository<TamTru>,
   ) {}
   // Tạo số của sổ hộ khẩu
   private generateSoHoKhau() {
@@ -115,6 +117,18 @@ export class HokhauService {
       if (inValid)
         return createError('Input', 'Tồn tại thành viên đã đăng kí hộ khẩu');
 
+      //Kiem tra cac thanh vien co ton tai trong bang tam tru hay chua
+
+      const tamTru = await this.tamTruRepo.find({
+        where: {
+          nguoiTamTru: {
+            id: In(idThanhVien),
+          },
+        },
+      });
+
+      if(tamTru &&tamTru.length>0)
+      return createError('Input','Thành viên đã đăng ký tạm trú');
       // TODO: Kiểm tra xem các thành viên có phù hợp với logic thông thường ko, vd: tuổi con nhỏ hơn tuổi bố mẹ, đã có chủ hộ chưa ...
       const soLuongChuHo = thanhVien.reduce(
         (acc, cur) =>
@@ -563,7 +577,7 @@ export class HokhauService {
           // hoKhau:{
           //   thanhVien:true
           // }
-        }
+        },
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
       console.log(lichSuHoKhau);
