@@ -47,7 +47,7 @@ export class TamVangResolver {
   @Roles(['ToTruong', 'ToPho'])
   async hetTamVang(
     @CurrentUser() nguoiPheDuyet: User,
-    @Args('input') input: hetTamVangInput
+    @Args('input') input: hetTamVangInput,
   ) {
     return this.tamVangService.hetTamVang(nguoiPheDuyet, input);
   }

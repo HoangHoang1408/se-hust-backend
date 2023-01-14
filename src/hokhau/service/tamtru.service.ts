@@ -219,7 +219,10 @@ export class TamTruService {
         },
       });
       if (!TamTru || (TamTru && TamTru.ngayHetHieuLuc))
-        return createError('Input', 'Người yêu cầu chưa đăng ký hoặc hết hạn tạm trú!');
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký hoặc hết hạn tạm trú!',
+        );
       //cập nhật tình trạng tạm trú
       TamTru.ngayHetHieuLuc = new Date();
       TamTru.nguoiPheDuyet = nguoiPheDuyet;

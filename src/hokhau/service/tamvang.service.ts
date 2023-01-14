@@ -238,7 +238,7 @@ export class TamVangService {
       TamVang.ngayHetHieuLuc = new Date();
       TamVang.nguoiPheDuyet = nguoiPheDuyet;
       await this.TamVangRepo.save(TamVang);
-      await this.hokhauRepo.save(hoKhau)
+      await this.hokhauRepo.save(hoKhau);
       return {
         ok: true,
       };
