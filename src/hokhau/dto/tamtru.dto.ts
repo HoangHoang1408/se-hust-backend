@@ -40,9 +40,17 @@ export class suaThongTinTamTruInput extends CoreOutput {
 
   @Field(() => ID)
   bangTamTruId: number;
-  
+
   @Field()
   noiTamTruMoi: string;
 }
 @ObjectType()
 export class suaThongTinTamTruOutput extends CoreOutput {}
+
+@InputType()
+export class hetTamTruInput extends CoreOutput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+}
+@ObjectType()
+export class hetTamTruOutput extends CoreOutput {}

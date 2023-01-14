@@ -46,3 +46,11 @@ export class suaThongTinTamVangInput {
 
 @ObjectType()
 export class suaThongTinTamVangOutput extends CoreOutput {}
+
+@InputType()
+export class hetTamVangInput {
+  @Field(() => ID)
+  nguoiYeuCauId: number;
+}
+@ObjectType()
+export class hetTamVangOutput extends CoreOutput {}

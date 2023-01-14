@@ -11,6 +11,8 @@ import {
   suaThongTinTamVangOutput,
   xemDanhSachTamVangInput,
   xemDanhSachTamVangOutput,
+  hetTamVangInput,
+  hetTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -63,7 +65,7 @@ export class TamVangService {
           },
         },
       });
-      if (TamVang)
+      if (TamVang && TamVang.ngayHetHieuLuc == null)
         return createError('Input', 'Người này đã được thêm tạm vắng');
 
       // ghi chú trong hộ khẩu người này đã tạm vắng tại khu dân phố
@@ -169,6 +171,8 @@ export class TamVangService {
           'Input',
           'Thông tin id của bảng tạm vắng sai hoặc không tồn tại!',
         );
+      if (tamVang && tamVang.ngayHetHieuLuc)
+        return createError('Input', 'Người này đã không còn tạm vắng nữa!');
 
       if (userYeuCau.id !== tamVang.nguoiTamVang.id)
         return createError(
@@ -188,6 +192,59 @@ export class TamVangService {
     } catch (error) {
       console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+  //Cập nhật lại tình trạng khi có yêu cầu hết tạm vắng
+  async hetTamVang(
+    nguoiPheDuyet: User,
+    input: hetTamVangInput,
+  ): Promise<hetTamVangOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //Kiểm tra người yêu cầu có hộ khẩu cư trú không
+      if (!nguoiYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người này không có hộ khẩu cư trú trong khu dân cư',
+        );
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm vắng không
+      const TamVang = await this.TamVangRepo.findOne({
+        where: {
+          nguoiTamVang: {
+            id: nguoiYeuCau.id,
+          },
+        },
+      });
+      if (!TamVang)
+        return createError('Input', 'Người yêu cầu chưa đăng ký tạm vắng !');
+      if (TamVang.ngayHetHieuLuc)
+        return createError('Input', 'Người yêu cầu đã không còn tạm vắng !');
+
+      const hoKhau = await this.hokhauRepo.findOne({
+        where: { id: nguoiYeuCau.hoKhauId },
+      });
+      //cập nhật tình trạng tạm vắng
+      hoKhau.ghiChu = nguoiYeuCau.ten + 'nguoi nay da het tam vang';
+      TamVang.ngayHetHieuLuc = new Date();
+      TamVang.nguoiPheDuyet = nguoiPheDuyet;
+      await this.TamVangRepo.save(TamVang);
+      await this.hokhauRepo.save(hoKhau)
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }

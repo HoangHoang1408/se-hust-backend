@@ -27,4 +27,8 @@ export class TamTru extends CoreEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   noiTamTruHienTai?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  ngayHetHieuLuc?: Date;
 }

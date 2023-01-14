@@ -7,6 +7,8 @@ import { ILike, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
+  hetTamTruInput,
+  hetTamTruOutput,
   suaThongTinTamTruInput,
   suaThongTinTamTruOutput,
   xemDanhSachTamTruInput,
@@ -35,6 +37,12 @@ export class TamTruService {
       if (!user)
         return createError('Input', 'Người này đang chưa thêm vào khu dân phố');
 
+      //kiểm tra người này có phải chủ hộ không
+      if (user.vaiTroThanhVien == 'Chủ hộ')
+        return createError(
+          'Input',
+          'Người này là chủ hộ, Hãy thay đổi vai trò thành viên',
+        );
       // kiểm tra người này có phải đã có hổ khẩu cư trú ở đây chưa
       if (user.hoKhauId)
         return createError(
@@ -56,7 +64,8 @@ export class TamTruService {
         now.getMonth(),
         now.getDate(),
       );
-      if (tamtru) return createError('Input', 'Người này đã được thêm tạm trú');
+      if (tamtru && !tamtru.ngayHetHieuLuc)
+        return createError('Input', 'Người này đang tạm trú trong khu dân cư');
 
       await this.tamTruRepo.save(
         this.tamTruRepo.create({
@@ -151,6 +160,12 @@ export class TamTruService {
           'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
         );
 
+      if (tamTru && tamTru.ngayHetHieuLuc)
+        return createError(
+          'Input',
+          'Người này không còn tạm trú trong khu dân cư',
+        );
+
       const now = new Date();
       const next_year = new Date(
         now.getFullYear() + 1,
@@ -169,6 +184,52 @@ export class TamTruService {
     } catch (error) {
       console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+
+  //Cập nhật lại khi người đó không tạm trú nữa
+  async hetTamTru(
+    nguoiPheDuyet: User,
+    input: hetTamTruInput,
+  ): Promise<hetTamTruOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //Kiểm tra người yêu cầu có hộ khẩu cư trú ở đây không
+      if (!nguoiYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người này không có hộ khẩu cư trú trong khu dân cư',
+        );
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm trú không
+      const TamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: nguoiYeuCauId,
+          },
+        },
+      });
+      if (!TamTru || (TamTru && TamTru.ngayHetHieuLuc))
+        return createError('Input', 'Người yêu cầu chưa đăng ký hoặc hết hạn tạm trú!');
+      //cập nhật tình trạng tạm trú
+      TamTru.ngayHetHieuLuc = new Date();
+      TamTru.nguoiPheDuyet = nguoiPheDuyet;
+      await this.tamTruRepo.save(TamTru);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }
