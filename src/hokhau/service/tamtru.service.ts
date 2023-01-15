@@ -56,6 +56,7 @@ export class TamTruService {
           nguoiTamTru: {
             id: nguoiTamTruId,
           },
+          ngayHetHieuLuc: null,
         },
       });
       const now = new Date();
@@ -64,7 +65,7 @@ export class TamTruService {
         now.getMonth(),
         now.getDate(),
       );
-      if (tamtru && !tamtru.ngayHetHieuLuc)
+      if (tamtru)
         return createError('Input', 'Người này đang tạm trú trong khu dân cư');
 
       await this.tamTruRepo.save(
@@ -143,27 +144,31 @@ export class TamTruService {
           'Người yêu cầu đang thường trú trong khu dân phố này',
         );
 
+      const TamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: nguoiYeuCauId,
+          },
+          ngayHetHieuLuc: null,
+        },
+      });
+      if (!TamTru)
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký tạm trú hoặc đã hết hạn tạm trú!',
+        );
+
       const tamTru = await this.tamTruRepo.findOne({
         where: { id: bangTamTruId },
         select: ['nguoiTamTru', 'id'],
         relations: ['nguoiTamTru'],
       });
-      if (!tamTru)
-        return createError(
-          'Input',
-          'Thông tin id của bảng tạm trú sai hoặc không tồn tại!',
-        );
+     
 
       if (userYeuCau.id !== tamTru.nguoiTamTru.id)
         return createError(
           'Input',
           'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
-        );
-
-      if (tamTru && tamTru.ngayHetHieuLuc)
-        return createError(
-          'Input',
-          'Người này không còn tạm trú trong khu dân cư',
         );
 
       const now = new Date();
@@ -204,24 +209,19 @@ export class TamTruService {
       if (!nguoiYeuCau)
         return createError('Input', 'Người yêu cầu không có trong khu dân cư');
 
-      //Kiểm tra người yêu cầu có hộ khẩu cư trú ở đây không
-      if (!nguoiYeuCau.hoKhauId)
-        return createError(
-          'Input',
-          'Người này không có hộ khẩu cư trú trong khu dân cư',
-        );
       //kiểm tra người yêu cầu có đang trong tình trạng tạm trú không
       const TamTru = await this.tamTruRepo.findOne({
         where: {
           nguoiTamTru: {
             id: nguoiYeuCauId,
           },
+          ngayHetHieuLuc: null,
         },
       });
-      if (!TamTru || (TamTru && TamTru.ngayHetHieuLuc))
+      if (!TamTru)
         return createError(
           'Input',
-          'Người yêu cầu chưa đăng ký hoặc hết hạn tạm trú!',
+          'Người yêu cầu chưa đăng ký hoặc đã hết hiệu lực tạm trú!',
         );
       //cập nhật tình trạng tạm trú
       TamTru.ngayHetHieuLuc = new Date();
