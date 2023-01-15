@@ -63,10 +63,10 @@ export class TamVangService {
           nguoiTamVang: {
             id: user.id,
           },
+          ngayHetHieuLuc: null,
         },
       });
-      if (TamVang && TamVang.ngayHetHieuLuc == null)
-        return createError('Input', 'Người này đã được thêm tạm vắng');
+      if (TamVang) return createError('Input', 'Người này đang tạm vắng');
 
       // ghi chú trong hộ khẩu người này đã tạm vắng tại khu dân phố
       // lưu lịch sử tạm vắng trong bảng lịch sử hộ khẩu
@@ -160,19 +160,25 @@ export class TamVangService {
         where: { id: nguoiYeuCauId },
       });
 
+      const TamVang = await this.TamVangRepo.findOne({
+        where: {
+          nguoiTamVang: {
+            id: nguoiYeuCauId,
+          },
+          ngayHetHieuLuc: null,
+        },
+      });
+      if (!TamVang)
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã hết hạn tạm vắng!',
+        );
+
       const tamVang = await this.TamVangRepo.findOne({
         where: { id: bangTamVangId },
         select: ['nguoiTamVang', 'id'],
         relations: ['nguoiTamVang'],
       });
-
-      if (!tamVang)
-        return createError(
-          'Input',
-          'Thông tin id của bảng tạm vắng sai hoặc không tồn tại!',
-        );
-      if (tamVang && tamVang.ngayHetHieuLuc)
-        return createError('Input', 'Người này đã không còn tạm vắng nữa!');
 
       if (userYeuCau.id !== tamVang.nguoiTamVang.id)
         return createError(
@@ -223,12 +229,14 @@ export class TamVangService {
           nguoiTamVang: {
             id: nguoiYeuCau.id,
           },
+          ngayHetHieuLuc: null,
         },
       });
       if (!TamVang)
-        return createError('Input', 'Người yêu cầu chưa đăng ký tạm vắng !');
-      if (TamVang.ngayHetHieuLuc)
-        return createError('Input', 'Người yêu cầu đã không còn tạm vắng !');
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã hết hạn tạm vắng !',
+        );
 
       const hoKhau = await this.hokhauRepo.findOne({
         where: { id: nguoiYeuCau.hoKhauId },
