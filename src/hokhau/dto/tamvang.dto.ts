@@ -40,8 +40,6 @@ export class xemDanhSachTamVangOutput extends CoreOutput {
 export class suaThongTinTamVangInput {
   @Field(() => ID)
   nguoiYeuCauId: number;
-  @Field(() => ID)
-  bangTamVangId: number;
   @Field()
   lyDoTamVang: string;
   @Field()
