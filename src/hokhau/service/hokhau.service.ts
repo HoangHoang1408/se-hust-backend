@@ -23,6 +23,90 @@ import {
 } from '../dto/hokhau.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
+
+export class ThanhVien {
+  id: number;
+  vaiTroThanhVien: VaiTroThanhVien;
+}
+
+function checkTuoiChaCon(nguoiCha: User, nguoiCon: User): boolean {
+  return nguoiCha.ngaySinh.getFullYear() - nguoiCon.ngaySinh.getFullYear() < 10;
+}
+
+function kiemTraLogic(thanhVien: ThanhVien[], user: User[]): boolean {
+  const chuHo = thanhVien.find(
+    (tv) => tv.vaiTroThanhVien === VaiTroThanhVien.ChuHo,
+  );
+  const nguoiChuHo = user.find((u) => u.id == chuHo.id);
+  if (!nguoiChuHo || !chuHo) return false;
+  //kiểm tra điều kiện chủ hộ hợp lệ nếu chủ hộ chưa đủ 18 tuổi
+  if (checkTuoi18(nguoiChuHo.ngaySinh)) {
+    for (const tv of thanhVien) {
+      if (tv.vaiTroThanhVien !== VaiTroThanhVien.ChuHo)
+        if (!checkTuoi18(user.find((u) => u.id == tv.id).ngaySinh))
+          return false;
+    }
+  }
+  //kiểm tra tuổi con với tuổi bố mẹ có hợp lệ không
+  for (const tv of thanhVien) {
+    if (tv.vaiTroThanhVien == VaiTroThanhVien.Con) {
+      if (
+        checkTuoiChaCon(
+          user.find((u) => u.id == tv.id),
+          nguoiChuHo,
+        )
+      )
+        return false;
+    }
+    if (
+      tv.vaiTroThanhVien == VaiTroThanhVien.Bo ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Me
+    ) {
+      if (
+        checkTuoiChaCon(
+          nguoiChuHo,
+          user.find((u) => u.id == tv.id),
+        )
+      )
+        return false;
+    }
+  }
+  //kiểm tra logic giới tính
+  for (const tv of thanhVien) {
+    if (
+      tv.vaiTroThanhVien == VaiTroThanhVien.Bo ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Ong ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Anh ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Chong
+    ) {
+      if (user.find((u) => u.id == tv.id).gioiTinh == 'Nữ') return false;
+    }
+    if (
+      tv.vaiTroThanhVien == VaiTroThanhVien.Me ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Ba ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Chi ||
+      tv.vaiTroThanhVien == VaiTroThanhVien.Vo
+    ) {
+      if (user.find((u) => u.id == tv.id).gioiTinh == 'Nam') return false;
+    }
+  }
+  return true;
+}
+
+//hàm kiểm tra người chưa đủ 18 tuổi
+function checkTuoi18(ngaySinh: Date) {
+  let ngayHienTai = new Date();
+  if (
+    ngaySinh.getFullYear() + 18 > ngayHienTai.getFullYear() ||
+    (ngaySinh.getFullYear() + 18 === ngayHienTai.getFullYear() &&
+      ngaySinh.getMonth() > ngayHienTai.getMonth()) ||
+    (ngaySinh.getFullYear() + 18 === ngayHienTai.getFullYear() &&
+      ngaySinh.getMonth() === ngayHienTai.getMonth() &&
+      ngaySinh.getDate() > ngayHienTai.getDate())
+  )
+    return true;
+  else return false;
+}
 @Injectable()
 export class HokhauService {
   constructor(
@@ -100,6 +184,7 @@ export class HokhauService {
           id: nguoiYeuCauId,
         },
       });
+
       if (!nguoiYeuCau)
         return createError('Input', 'Người yêu cầu không hợp lệ');
 
@@ -123,6 +208,12 @@ export class HokhauService {
       );
       if (soLuongChuHo !== 1)
         return createError('Input', 'Yêu cầu có duy nhất một chủ hộ mới');
+
+      if (!kiemTraLogic(thanhVien, users))
+        return createError(
+          'Input',
+          'Logic về quan hệ của thành viên không hợp lệ',
+        );
 
       // cập nhật vai trò của các thành viên trong bảng ngưởi dùng
       users.forEach((user) => {
@@ -156,6 +247,7 @@ export class HokhauService {
         ok: true,
       };
     } catch (error) {
+      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
@@ -242,6 +334,9 @@ export class HokhauService {
       if (soLuongChuHo !== 1)
         return createError('Input', 'Yêu cầu có duy nhất một chủ hộ mới');
 
+      if (!kiemTraLogic(tvTrongHoKhauMoi, thanhVienTrongHoKhauMoi))
+        return createError('Input', 'Logic không hợp lệ');
+
       // cập nhật vai trò của các thành viên trong bảng ngưởi dùng
       thanhVienTrongHoKhauMoi.forEach((user) => {
         user.vaiTroThanhVien = tvTrongHoKhauMoi.find(
@@ -322,6 +417,7 @@ export class HokhauService {
           id: In(idThanhVienMoi),
         },
       });
+
       // 1. kiểm tra người yêu cầu có thuộc hộ khẩu không
       if (!idThanhVienCu.includes(+nguoiYeuCauId))
         return createError('Input', 'Người yêu cầu không thuộc hộ khẩu');
@@ -351,6 +447,9 @@ export class HokhauService {
       if (soLuongChuHo !== 1)
         return createError('Input', 'Yêu cầu có duy nhất một chủ hộ mới');
 
+      // kiểm tra logic giữa các thành viên trong hộ khẩu mới
+      if (!kiemTraLogic(thanhVienHoKhauMoi, tvMoi))
+        return createError('Input', 'Logic không hợp lệ');
       // B. Tách hộ khẩu
       // 1. Cập nhật lại vai trò của các thành viên trong hộ khẩu mới
       tvMoi.forEach((tv) => {
@@ -442,6 +541,45 @@ export class HokhauService {
       });
       if (!thanhVienMoi)
         return createError('Input', 'Thành viên này không tồn tại ');
+
+      //if(!kiemTraLogic(nguoiMoi, thanhVienMoi))
+      //kiểm tra logic tuổi con với tuổi cha mẹ
+      const hoKhauDangXet = await this.hoKhauRepo.findOne({
+        where: {
+          id: hoKhauId,
+        },
+      });
+      const chuHo = hoKhauDangXet.thanhVien.find(
+        (tv) => tv.vaiTroThanhVien == VaiTroThanhVien.ChuHo,
+      );
+      if (nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Con) {
+        if (checkTuoiChaCon(thanhVienMoi, chuHo))
+          return createError('Input', 'Tuổi con không hợp lệ ');
+      }
+      if (
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Bo ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Me
+      ) {
+        if (checkTuoiChaCon(chuHo, thanhVienMoi))
+          return createError('Input', 'Tuổi bố mẹ và chủ hộ không hợp lệ ');
+      }
+      //kiểm tra logic giới tính
+      if (
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Bo ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Ong ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Anh ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Chong
+      )
+        if (thanhVienMoi.gioiTinh == 'Nữ')
+          return createError('Input', 'Giới tính thành viên mới không hợp lệ ');
+      if (
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Me ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Ba ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Chi ||
+        nguoiMoi.vaiTroThanhVien == VaiTroThanhVien.Vo
+      )
+        if (thanhVienMoi.gioiTinh == 'Nam')
+          return createError('Input', 'Giới tính thành viên mới không hợp lệ ');
 
       // kiem tra nguoi them vao da co trong ho khau chua
       if (thanhVienMoi.hoKhauId == hoKhauId)
