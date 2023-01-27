@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
-import { User } from 'src/user/entities/user.entity';
+import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
 import { ILike, In, Repository } from 'typeorm';
 import {
   AddTamVangInput,
@@ -45,7 +45,7 @@ export class TamVangService {
         return createError('Input', 'Người này không có trong khu dân phố');
 
       // kiểm tra người này có phải chủ hộ hay không
-      if (user.vaiTroThanhVien == 'Chủ hộ')
+      if (user.vaiTroThanhVien == VaiTroThanhVien.ChuHo)
         return createError(
           'input',
           'Cần chuyển vai trò thành viên của người này',
@@ -93,6 +93,7 @@ export class TamVangService {
           ngayBatDauTamVang: new Date(),
           lyDoTamVang,
           diaChiNoiDen,
+          ngayHetHieuLuc: null,
         }),
       );
       return {
@@ -111,7 +112,7 @@ export class TamVangService {
         canCuocCongDan,
       } = input;
 
-      const tamVang = await this.TamVangRepo.find({
+      const [tamVang, totalResults] = await this.TamVangRepo.findAndCount({
         where: {
           nguoiTamVang: {
             canCuocCongDan: canCuocCongDan
@@ -119,21 +120,16 @@ export class TamVangService {
               : undefined,
           },
         },
-      });
-
-      const idTamVang = tamVang.map((tv) => tv.id);
-      const [TamVang, totalResults] = await this.TamVangRepo.findAndCount({
-        where: [
-          {
-            id: In(idTamVang),
-          },
-        ],
+        relations: {
+          nguoiTamVang: true,
+        },
         skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
         take: resultsPerPage, // lấy bao nhiêu bản ghi
         order: {
           updatedAt: SortOrder.DESC,
         }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
       });
+      console.log(tamVang);
 
       return {
         ok: true,

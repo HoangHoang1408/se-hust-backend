@@ -32,7 +32,7 @@ export class xemDanhSachTamVangOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })
   paginationOutput?: PaginationOutput;
 
-  @Field(() => TamVang, { nullable: true })
+  @Field(() => [TamVang], { nullable: true })
   tamVang?: TamVang[];
 }
 
