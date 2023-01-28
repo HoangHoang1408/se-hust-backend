@@ -7,15 +7,18 @@ import { User } from '../../user/entities/user.entity';
 @ObjectType()
 @Entity()
 export class TamVang extends CoreEntity {
+  @Field(() => User)
   @ManyToOne(() => User)
   @JoinColumn()
   nguoiPheDuyet: User;
 
+  @Field(() => User)
   @OneToOne(() => User)
   @JoinColumn()
   nguoiTamVang: User;
 
-  @Field(() => Date)
+
+  @Field(() => Date, { nullable: true })
   @Column('timestamp without time zone', { nullable: true })
   ngayBatDauTamVang?: Date;
 
@@ -27,7 +30,8 @@ export class TamVang extends CoreEntity {
   @Column({ nullable: true })
   diaChiNoiDen?: string;
 
-  @Field(() => Date)
+
+  @Field(() => Date, { nullable: true })
   @Column('timestamp without time zone', { nullable: true })
   ngayHetHieuLuc?: Date;
 }
