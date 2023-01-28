@@ -29,6 +29,6 @@ export class TamTru extends CoreEntity {
   noiTamTruHienTai?: string;
 
   @Field(() => Date)
-  @Column({ nullable: true })
+  @Column('timestamp without time zone', { nullable: true })
   ngayHetHieuLuc?: Date;
 }

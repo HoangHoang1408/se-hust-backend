@@ -17,8 +17,9 @@ export class TamVang extends CoreEntity {
   @JoinColumn()
   nguoiTamVang: User;
 
+
   @Field(() => Date, { nullable: true })
-  @Column({ nullable: true })
+  @Column('timestamp without time zone', { nullable: true })
   ngayBatDauTamVang?: Date;
 
   @Field()
@@ -29,7 +30,8 @@ export class TamVang extends CoreEntity {
   @Column({ nullable: true })
   diaChiNoiDen?: string;
 
+
   @Field(() => Date, { nullable: true })
-  @Column({ nullable: true })
+  @Column('timestamp without time zone', { nullable: true })
   ngayHetHieuLuc?: Date;
 }

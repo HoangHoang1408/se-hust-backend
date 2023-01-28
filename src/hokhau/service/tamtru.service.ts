@@ -127,7 +127,7 @@ export class TamTruService {
     input: suaThongTinTamTruInput,
   ): Promise<suaThongTinTamTruOutput> {
     try {
-      const { nguoiYeuCauId, bangTamTruId, noiTamTruMoi } = input;
+      const { nguoiYeuCauId, noiTamTruMoi } = input;
 
       const userYeuCau = await this.userRepo.findOne({
         where: { id: nguoiYeuCauId },
@@ -144,31 +144,21 @@ export class TamTruService {
           'Người yêu cầu đang thường trú trong khu dân phố này',
         );
 
-      const TamTru = await this.tamTruRepo.findOne({
+      const tamTru = await this.tamTruRepo.findOne({
         where: {
           nguoiTamTru: {
             id: nguoiYeuCauId,
           },
           ngayHetHieuLuc: null,
         },
+        select: ['nguoiTamTru', 'id', 'noiTamTruHienTai'],
+        relations: ['nguoiTamTru'],
       });
-      if (!TamTru)
+
+      if (!tamTru)
         return createError(
           'Input',
           'Người yêu cầu chưa đăng ký tạm trú hoặc đã hết hạn tạm trú!',
-        );
-
-      const tamTru = await this.tamTruRepo.findOne({
-        where: { id: bangTamTruId },
-        select: ['nguoiTamTru', 'id'],
-        relations: ['nguoiTamTru'],
-      });
-     
-
-      if (userYeuCau.id !== tamTru.nguoiTamTru.id)
-        return createError(
-          'Input',
-          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
         );
 
       const now = new Date();
@@ -178,6 +168,7 @@ export class TamTruService {
         now.getDate(),
       );
 
+      tamTru.ghiChu = `Thay đổi thông tin tạm trú từ: ${tamTru.noiTamTruHienTai} đến ${noiTamTruMoi}`;
       tamTru.nguoiPheDuyet = nguoiPheDuyet;
       tamTru.noiTamTruHienTai = noiTamTruMoi;
       tamTru.ngayHetHanTamTru = next_year;
@@ -187,7 +178,6 @@ export class TamTruService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }

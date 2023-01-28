@@ -149,37 +149,26 @@ export class TamVangService {
     input: suaThongTinTamVangInput,
   ): Promise<suaThongTinTamVangOutput> {
     try {
-      const { nguoiYeuCauId, bangTamVangId, lyDoTamVang, diaChiNoiDenMoi } =
-        input;
+      const { nguoiYeuCauId, lyDoTamVang, diaChiNoiDenMoi } = input;
 
       const userYeuCau = await this.userRepo.findOne({
         where: { id: nguoiYeuCauId },
       });
 
-      const TamVang = await this.TamVangRepo.findOne({
+      const tamVang = await this.TamVangRepo.findOne({
         where: {
           nguoiTamVang: {
             id: nguoiYeuCauId,
           },
           ngayHetHieuLuc: null,
         },
+        select: ['nguoiTamVang', 'id', 'diaChiNoiDen'],
+        relations: ['nguoiTamVang'],
       });
-      if (!TamVang)
+      if (!tamVang)
         return createError(
           'Input',
           'Người yêu cầu chưa đăng ký tạm vắng hoặc đã hết hạn tạm vắng!',
-        );
-
-      const tamVang = await this.TamVangRepo.findOne({
-        where: { id: bangTamVangId },
-        select: ['nguoiTamVang', 'id'],
-        relations: ['nguoiTamVang'],
-      });
-
-      if (userYeuCau.id !== tamVang.nguoiTamVang.id)
-        return createError(
-          'Input',
-          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
         );
 
       tamVang.lyDoTamVang = lyDoTamVang;

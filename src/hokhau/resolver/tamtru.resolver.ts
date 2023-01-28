@@ -5,12 +5,12 @@ import { User } from 'src/user/entities/user.entity';
 import {
   AddTamTruInput,
   AddTamTruOutput,
-  xemDanhSachTamTruInput,
-  xemDanhSachTamTruOutput,
-  suaThongTinTamTruInput,
-  suaThongTinTamTruOutput,
   hetTamTruInput,
   hetTamTruOutput,
+  suaThongTinTamTruInput,
+  suaThongTinTamTruOutput,
+  xemDanhSachTamTruInput,
+  xemDanhSachTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 import { TamTruService } from '../service/tamtru.service';
