@@ -12,11 +12,11 @@ export class TamTru extends CoreEntity {
   nguoiPheDuyet: User;
 
   @Field(() => User)
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User)
+  // @JoinColumn()
   nguoiTamTru: User;
 
-  @Field(() => Date)
+  @Field(() => Date, { nullable: true })
   @Column('timestamp without time zone', { nullable: true })
   ngayHetHanTamTru?: Date;
 
@@ -28,7 +28,7 @@ export class TamTru extends CoreEntity {
   @Column({ nullable: true })
   noiTamTruHienTai?: string;
 
-  @Field(() => Date)
+  @Field(() => Date, { nullable: true })
   @Column('timestamp without time zone', { nullable: true })
   ngayHetHieuLuc?: Date;
 }

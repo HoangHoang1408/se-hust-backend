@@ -1,18 +1,20 @@
+import { CurrentUser } from 'src/auth/user.decorator';
+import { XemThongTinTamTruOutput } from './../dto/tamtru.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, IsNull, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
-  hetTamTruInput,
-  hetTamTruOutput,
-  suaThongTinTamTruInput,
-  suaThongTinTamTruOutput,
-  xemDanhSachTamTruInput,
-  xemDanhSachTamTruOutput,
+  HetTamTruInput,
+  HetTamTruOutput,
+  SuaThongTinTamTruInput,
+  SuaThongTinTamTruOutput,
+  XemDanhSachTamTruInput,
+  XemDanhSachTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 @Injectable()
@@ -56,7 +58,7 @@ export class TamTruService {
           nguoiTamTru: {
             id: nguoiTamTruId,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: IsNull(),
         },
       });
       const now = new Date();
@@ -85,8 +87,8 @@ export class TamTruService {
     }
   }
   async xemDanhSachTamTru(
-    input: xemDanhSachTamTruInput,
-  ): Promise<xemDanhSachTamTruOutput> {
+    input: XemDanhSachTamTruInput,
+  ): Promise<XemDanhSachTamTruOutput> {
     try {
       const {
         paginationInput: { page, resultsPerPage },
@@ -99,6 +101,7 @@ export class TamTruService {
               ? ILike(`%${canCuocCongDan}%`)
               : undefined,
           },
+          ngayHetHieuLuc: IsNull(),
         },
         relations: {
           nguoiTamTru: true,
@@ -124,8 +127,8 @@ export class TamTruService {
 
   async suaThongTinTamTru(
     nguoiPheDuyet: User,
-    input: suaThongTinTamTruInput,
-  ): Promise<suaThongTinTamTruOutput> {
+    input: SuaThongTinTamTruInput,
+  ): Promise<SuaThongTinTamTruOutput> {
     try {
       const { nguoiYeuCauId, noiTamTruMoi } = input;
 
@@ -149,7 +152,7 @@ export class TamTruService {
           nguoiTamTru: {
             id: nguoiYeuCauId,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: IsNull(),
         },
         select: ['nguoiTamTru', 'id', 'noiTamTruHienTai'],
         relations: ['nguoiTamTru'],
@@ -185,8 +188,8 @@ export class TamTruService {
   //Cập nhật lại khi người đó không tạm trú nữa
   async hetTamTru(
     nguoiPheDuyet: User,
-    input: hetTamTruInput,
-  ): Promise<hetTamTruOutput> {
+    input: HetTamTruInput,
+  ): Promise<HetTamTruOutput> {
     try {
       const { nguoiYeuCauId } = input;
 
@@ -205,7 +208,7 @@ export class TamTruService {
           nguoiTamTru: {
             id: nguoiYeuCauId,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: IsNull(),
         },
       });
       if (!TamTru)
@@ -222,6 +225,36 @@ export class TamTruService {
       };
     } catch (error) {
       console.log(error);
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async xemThongTinTamTru(currentUser: User): Promise<XemThongTinTamTruOutput> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: currentUser.id },
+        select: ['id'],
+      });
+
+      const tamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: user.id,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+        relations: {
+          nguoiTamTru: true,
+          nguoiPheDuyet: true,
+        },
+      });
+      if (!tamTru)
+        return createError('Input', 'Bạn chưa đăng ký tạm trú hoặc đã hết hạn');
+      return {
+        ok: true,
+        tamTru,
+      };
+    } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }

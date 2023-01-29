@@ -1,9 +1,12 @@
+import { HoKhau } from './../hokhau/entity/hokhau.entity';
+import { TamVang } from './../hokhau/entity/tamvang.entity';
+import { TamTru } from './../hokhau/entity/tamtru.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { omitBy } from 'lodash';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, IsNull, In, LessThan, MoreThan } from 'typeorm';
 import {
   AddUserInput,
   AddUserOutput,
@@ -13,6 +16,7 @@ import {
   XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
+  ThongKeUserOuput,
 } from './dto/user.dto';
 import { User } from './entities/user.entity';
 
@@ -21,6 +25,10 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(TamTru) private readonly tamTruRepo: Repository<TamTru>,
+    @InjectRepository(TamVang)
+    private readonly tamVangRepo: Repository<TamVang>,
+    @InjectRepository(HoKhau) private readonly hoKhauRepo: Repository<HoKhau>,
   ) {}
 
   // quản lí thêm người dùng
@@ -132,6 +140,74 @@ export class UserService {
           totalResults,
           totalPages: Math.ceil(totalResults / resultsPerPage),
         },
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async thongKeUser(): Promise<ThongKeUserOuput> {
+    try {
+      const numberOfUser = await this.userRepo.count();
+      const numberOfUserTamTru = await this.tamTruRepo.count({
+        where: {
+          ngayHetHieuLuc: IsNull(),
+        },
+      });
+      const numberOfUserTamVang = await this.tamVangRepo.count({
+        where: {
+          ngayHetHieuLuc: IsNull(),
+        },
+      });
+      const soHo = await this.hoKhauRepo.count();
+
+      const now = new Date();
+      const check15 = new Date(
+        now.getFullYear() - 15,
+        now.getMonth(),
+        now.getDate(),
+      );
+      const check60 = new Date(
+        now.getFullYear() - 60,
+        now.getMonth(),
+        now.getDate(),
+      );
+      const check62 = new Date(
+        now.getFullYear() - 62,
+        now.getMonth(),
+        now.getDate(),
+      );
+      const soNguoiDuoiLaoDong = await this.userRepo.count({
+        where: {
+          ngaySinh: MoreThan(check15),
+        },
+      });
+      const soNguoiNgoaiLaoDongNu = await this.userRepo.count({
+        where: {
+          ngaySinh: LessThan(check60),
+          gioiTinh: 'Nữ',
+        },
+      });
+
+      const soNguoiNgoaiLaoDongNam = await this.userRepo.count({
+        where: {
+          ngaySinh: LessThan(check62),
+          gioiTinh: 'Nam',
+        },
+      });
+
+      const soNguoiNgoaiLaoDong =
+        soNguoiNgoaiLaoDongNam + soNguoiNgoaiLaoDongNu;
+      return {
+        ok: true,
+        soNguoiDangKi: numberOfUser,
+        soNguoiDangKiTamTru: numberOfUserTamTru,
+        soNguoiDangKiTamVang: numberOfUserTamVang,
+        soHo: soHo,
+        soNguoiDuoiLaoDong: soNguoiDuoiLaoDong,
+        soNguoiTrongLaoDong:
+          numberOfUser - soNguoiDuoiLaoDong - soNguoiNgoaiLaoDong,
+        soNguoiTrenLaoDong: soNguoiNgoaiLaoDong,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
