@@ -3,16 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, IsNull, Not, Repository } from 'typeorm';
 import {
   AddTamVangInput,
   AddTamVangOutput,
-  suaThongTinTamVangInput,
-  suaThongTinTamVangOutput,
-  xemDanhSachTamVangInput,
-  xemDanhSachTamVangOutput,
-  hetTamVangInput,
-  hetTamVangOutput,
+  HetTamVangInput,
+  HetTamVangOutput,
+  SuaThongTinTamVangInput,
+  SuaThongTinTamVangOutput,
+  XemDanhSachTamVangInput,
+  XemDanhSachTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -63,7 +63,7 @@ export class TamVangService {
           nguoiTamVang: {
             id: user.id,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: Not(null),
         },
       });
       if (TamVang) return createError('Input', 'Người này đang tạm vắng');
@@ -104,8 +104,8 @@ export class TamVangService {
     }
   }
   async xemDanhSachTamVang(
-    input: xemDanhSachTamVangInput,
-  ): Promise<xemDanhSachTamVangOutput> {
+    input: XemDanhSachTamVangInput,
+  ): Promise<XemDanhSachTamVangOutput> {
     try {
       const {
         paginationInput: { page, resultsPerPage },
@@ -129,7 +129,6 @@ export class TamVangService {
           updatedAt: SortOrder.DESC,
         }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
       });
-      console.log(tamVang);
 
       return {
         ok: true,
@@ -146,8 +145,8 @@ export class TamVangService {
 
   async suaThongTinTamVang(
     nguoiPheDuyet: User,
-    input: suaThongTinTamVangInput,
-  ): Promise<suaThongTinTamVangOutput> {
+    input: SuaThongTinTamVangInput,
+  ): Promise<SuaThongTinTamVangOutput> {
     try {
       const { nguoiYeuCauId, lyDoTamVang, diaChiNoiDenMoi } = input;
 
@@ -155,21 +154,21 @@ export class TamVangService {
         where: { id: nguoiYeuCauId },
       });
 
+      if (!userYeuCau)
+        return createError('Input', 'Người yêu cầu không tồn tại');
+
       const tamVang = await this.TamVangRepo.findOne({
         where: {
           nguoiTamVang: {
             id: nguoiYeuCauId,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: IsNull(),
         },
         select: ['nguoiTamVang', 'id', 'diaChiNoiDen'],
         relations: ['nguoiTamVang'],
       });
       if (!tamVang)
-        return createError(
-          'Input',
-          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã hết hạn tạm vắng!',
-        );
+        return createError('Input', 'Người yêu cầu không đăng ký tạm vắng!');
 
       tamVang.lyDoTamVang = lyDoTamVang;
       tamVang.diaChiNoiDen = diaChiNoiDenMoi;
@@ -181,15 +180,14 @@ export class TamVangService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
   //Cập nhật lại tình trạng khi có yêu cầu hết tạm vắng
   async hetTamVang(
     nguoiPheDuyet: User,
-    input: hetTamVangInput,
-  ): Promise<hetTamVangOutput> {
+    input: HetTamVangInput,
+  ): Promise<HetTamVangOutput> {
     try {
       const { nguoiYeuCauId } = input;
 
@@ -214,20 +212,19 @@ export class TamVangService {
           nguoiTamVang: {
             id: nguoiYeuCau.id,
           },
-          ngayHetHieuLuc: null,
+          ngayHetHieuLuc: IsNull(),
         },
       });
       if (!TamVang)
         return createError(
           'Input',
-          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã hết hạn tạm vắng !',
+          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã kết thúc tạm vắng!',
         );
 
       const hoKhau = await this.hokhauRepo.findOne({
         where: { id: nguoiYeuCau.hoKhauId },
       });
       //cập nhật tình trạng tạm vắng
-      hoKhau.ghiChu = nguoiYeuCau.ten + 'nguoi nay da het tam vang';
       TamVang.ngayHetHieuLuc = new Date();
       TamVang.nguoiPheDuyet = nguoiPheDuyet;
       await this.TamVangRepo.save(TamVang);
@@ -236,7 +233,6 @@ export class TamVangService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }

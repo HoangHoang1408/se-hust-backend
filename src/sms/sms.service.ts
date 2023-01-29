@@ -17,6 +17,5 @@ export class SMSService {
       from: '+13465212649',
       to: '+84932198916',
     });
-    console.log(res);
   }
 }

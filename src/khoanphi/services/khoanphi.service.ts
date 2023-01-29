@@ -95,7 +95,6 @@ export class KhoanPhiService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }

@@ -1,8 +1,8 @@
-import { TamTru } from 'src/hokhau/entity/tamtru.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
+import { TamTru } from 'src/hokhau/entity/tamtru.entity';
 import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
 import { ILike, In, Repository } from 'typeorm';
 import {
@@ -212,8 +212,8 @@ export class HokhauService {
         },
       });
 
-      if(tamTru &&tamTru.length>0)
-      return createError('Input','Thành viên đã đăng ký tạm trú');
+      if (tamTru && tamTru.length > 0)
+        return createError('Input', 'Thành viên đã đăng ký tạm trú');
       // TODO: Kiểm tra xem các thành viên có phù hợp với logic thông thường ko, vd: tuổi con nhỏ hơn tuổi bố mẹ, đã có chủ hộ chưa ...
       const soLuongChuHo = thanhVien.reduce(
         (acc, cur) =>
@@ -261,7 +261,6 @@ export class HokhauService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
@@ -464,6 +463,7 @@ export class HokhauService {
       // kiểm tra logic giữa các thành viên trong hộ khẩu mới
       if (!kiemTraLogic(thanhVienHoKhauMoi, tvMoi))
         return createError('Input', 'Logic không hợp lệ');
+
       // B. Tách hộ khẩu
       // 1. Cập nhật lại vai trò của các thành viên trong hộ khẩu mới
       tvMoi.forEach((tv) => {
@@ -497,18 +497,19 @@ export class HokhauService {
           .map((tv) => `${tv.ten} (${tv.canCuocCongDan})`)
           .join(', ')}`,
       });
+      // 4. Lưu vào database
+      await this.userRepo.save(tvMoi);
+      await this.hoKhauRepo.save(hoKhauCu);
+      const hoKhauMoiSaved = await this.hoKhauRepo.save(hoKhauMoi);
 
       const lichSuTrongHoKhauMoi = this.lichSuHoKhauRepo.create({
         hanhDong: HanhDongHoKhau.TaoMoiHoKhau,
         thoiGian: new Date(),
-        hoKhau: hoKhauMoi,
+        hoKhau: hoKhauMoiSaved,
         nguoiPheDuyet,
         nguoiYeuCau,
       });
 
-      // 4. Lưu vào database
-      await this.userRepo.save(tvMoi);
-      await this.hoKhauRepo.save([hoKhauCu, hoKhauMoi]);
       await this.lichSuHoKhauRepo.save([
         lichSuTrongHoKhauCu,
         lichSuTrongHoKhauMoi,
@@ -523,6 +524,7 @@ export class HokhauService {
   }
 
   // Thêm người vào hộ khẩu
+  // FIXME: Hiện tại ko dùng đến
   async themNguoiVaoHoKhau(
     nguoiPheDuyet: User,
     input: ThemNguoiVaoHoKhauInput,
@@ -627,6 +629,7 @@ export class HokhauService {
   }
 
   //Xoa nguoi khoi ho khau
+  // FIXME: Hiện tại ko dùng đến
   async xoaNguoiKhoiHoKhau(
     nguoiPheDuyet: User,
     input: XoaNguoiKhoiHoKhauInput,
@@ -697,6 +700,7 @@ export class HokhauService {
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
+
   async xemLichSuThayDoiNhanKhau(
     input: XemLichSuThayDoiNhanKhauInput,
   ): Promise<XemLichSuThayDoiNhanKhauOutput> {
@@ -718,13 +722,11 @@ export class HokhauService {
         },
       });
       if (!lichSuHoKhau) return createError('Input', 'Không tìm thấy hộ khẩu');
-      console.log(lichSuHoKhau);
       return {
         ok: true,
         lichSuHoKhau,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }

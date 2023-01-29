@@ -82,7 +82,6 @@ export class TamTruService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
@@ -224,7 +223,6 @@ export class TamTruService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
