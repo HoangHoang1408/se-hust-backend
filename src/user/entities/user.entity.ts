@@ -15,6 +15,8 @@ import {
 } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
+import { TamTru } from 'src/hokhau/entity/tamtru.entity';
+import { TamVang } from 'src/hokhau/entity/tamvang.entity';
 import { StoredFile } from 'src/upload/object/StoredFile';
 import {
   BeforeInsert,
@@ -22,6 +24,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   RelationId,
   Unique,
 } from 'typeorm';
@@ -184,4 +187,5 @@ export class User extends CoreEntity {
   async checkPassword(matKhau: string): Promise<Boolean> {
     return await compare(matKhau, this.matKhau);
   }
+
 }
