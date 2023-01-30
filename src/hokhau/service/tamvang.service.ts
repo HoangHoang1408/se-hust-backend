@@ -13,6 +13,7 @@ import {
   SuaThongTinTamVangOutput,
   XemDanhSachTamVangInput,
   XemDanhSachTamVangOutput,
+  XemThongTinTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -231,6 +232,36 @@ export class TamVangService {
       await this.hokhauRepo.save(hoKhau);
       return {
         ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async xemThongTinTamVang(
+    currentUser: User,
+  ): Promise<XemThongTinTamVangOutput> {
+    try {
+      const tamVang = await this.TamVangRepo.findOne({
+        where: {
+          nguoiTamVang: {
+            id: currentUser.id,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+        relations: {
+          nguoiTamVang: true,
+          nguoiPheDuyet: true,
+        },
+      });
+      if (!tamVang)
+        return createError(
+          'Input',
+          'Bạn chưa đăng ký tạm vắng hoặc đã hết hạn',
+        );
+      return {
+        ok: true,
+        tamVang,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

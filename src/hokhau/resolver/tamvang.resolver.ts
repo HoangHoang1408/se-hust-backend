@@ -11,6 +11,7 @@ import {
   SuaThongTinTamVangOutput,
   XemDanhSachTamVangInput,
   XemDanhSachTamVangOutput,
+  XemThongTinTamVangOutput,
 } from '../dto/tamvang.dto';
 import { TamVang } from '../entity/tamvang.entity';
 import { TamVangService } from '../service/tamvang.service';
@@ -50,5 +51,11 @@ export class TamVangResolver {
     @Args('input') input: HetTamVangInput,
   ) {
     return this.tamVangService.hetTamVang(nguoiPheDuyet, input);
+  }
+
+  @Query(() => XemThongTinTamVangOutput)
+  @Roles(['Any'])
+  async xemThongTinTamVang(@CurrentUser() user: User) {
+    return this.tamVangService.xemThongTinTamVang(user);
   }
 }

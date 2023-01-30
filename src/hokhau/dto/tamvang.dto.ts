@@ -54,5 +54,12 @@ export class HetTamVangInput {
   @Field(() => ID)
   nguoiYeuCauId: number;
 }
+
 @ObjectType()
 export class HetTamVangOutput extends CoreOutput {}
+
+@ObjectType()
+export class XemThongTinTamVangOutput extends CoreOutput {
+  @Field(() => TamVang, { nullable: true })
+  tamVang?: TamVang;
+}
