@@ -86,7 +86,7 @@ export class KhoanPhiService {
               nguoiTamVang: {
                 id: In(tvId),
               },
-              // ngayHetHan:Not(null),
+              ngayHetHieuLuc:Not(null),
             },
           });
           const thanhVienHk = await this.userRepo.find({
@@ -102,7 +102,7 @@ export class KhoanPhiService {
           dongGop.push(
             this.donggopRepo.create({
               hoKhau: hk,
-              soTienDongGop: soTien * (thanhVienHk.length - 0),
+              soTienDongGop: soTien * (thanhVienHk.length - tamvang.length),
               trangThai: false,
             }),
           );

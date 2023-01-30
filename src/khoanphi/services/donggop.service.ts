@@ -17,7 +17,7 @@ import {
 } from '../dtos/donggop.dto';
 
 import { DongGop } from '../entities/donggop.entity';
-import { KhoanPhi } from '../entities/khoanphi.entity';
+import { KhoanPhi, LoaiPhi } from '../entities/khoanphi.entity';
 
 @Injectable()
 export class DongGopService {
@@ -38,6 +38,15 @@ export class DongGopService {
   async addDongGop(input: AddDongGopInput): Promise<AddDongGopOutput> {
     try {
       const { KhoanPhiId, soTienDongGop, hoKhauId, nguoiTamTruId } = input;
+
+      //kiểm tra tồn tại cả hai ID:hoKhauId và nguoiTamTruId
+      if (hoKhauId != 0 && nguoiTamTruId != 0) {
+        return createError(
+          'Input',
+          'Không thể tồn tại đồng thời cả người tạm trú và hộ khẩu',
+        );
+      }
+
       // kiểm tra xem hộ khẩu hoặc người tạm trú này có tồn tại hay không
       const nguoitamtru = await this.tamtruRepo.findOne({
         where: {
@@ -62,21 +71,24 @@ export class DongGopService {
         return createError('Input', 'Người tạm trú hoặc hộ khẩu không tồn tại');
       if (hokhau) {
         //kiểm tra xem khoản đóng góp của hộ này đã được thêm vào trước đó chưa
-        const donggop = await this.donggopRepo.findOne({
+        const donggop = await this.donggopRepo.find({
           where: {
             hoKhau: {
               id: hoKhauId,
             },
-            
-            khoanPhi: {
-              id: KhoanPhiId,
-            },
           },
           relations: {
             hoKhau: true,
+            khoanPhi: true,
           },
         });
-        if(donggop)
+        donggop.forEach((dg, index) => {
+          if (dg.khoanPhi.id != KhoanPhiId) {
+            delete donggop[index];
+          }
+        });
+        console.log(donggop);
+        if (!donggop)
           return createError(
             'Input',
             'Khoản đóng góp của người này đã được thêm vào',
@@ -91,19 +103,25 @@ export class DongGopService {
             trangThai: true,
           }),
         );
-      } else if (nguoitamtru) {
+      }
+      if (nguoitamtru) {
         //kiểm tra xem khoản đóng góp của người này này đã được thêm vào trước đó chưa
-        const donggop = await this.donggopRepo.findOne({
+        const donggop = await this.donggopRepo.find({
           where: {
             nguoiTamTru: {
               id: nguoiTamTruId,
             },
-            khoanPhi: {
-              id: KhoanPhiId,
-            },
+          },
+          relations: {
+            khoanPhi: true,
           },
         });
-        if (donggop)
+        donggop.forEach((dg, index) => {
+          if (dg.khoanPhi.id != KhoanPhiId) {
+            delete donggop[index];
+          }
+        });
+        if (!donggop)
           return createError(
             'Input',
             'Khoản đóng góp của người này đã được thêm vào',
@@ -123,6 +141,7 @@ export class DongGopService {
         ok: true,
       };
     } catch (error) {
+      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
@@ -130,14 +149,39 @@ export class DongGopService {
   async editDongGop(input: EditDongGopInput): Promise<EditDongGopOutput> {
     try {
       const { dongGopId, soTienDongGop, ngayNop } = input;
+
       const dongGop = await this.donggopRepo.findOne({
         where: {
           id: dongGopId,
         },
+        relations: {
+          khoanPhi: true,
+        },
       });
+      // kiểm tra xem khoản phí này đã tồn tại hay chưa
       if (!dongGop)
         return createError('Input', 'Khoản đóng góp này chưa tồn tại');
-
+      //kiểm tra số tiền đóng góp có phù hợp hay không
+      if (
+        soTienDongGop != dongGop.soTienDongGop &&
+        dongGop.khoanPhi.loaiPhi == LoaiPhi.BatBuoc
+      ) {
+        return createError(
+          'Input',
+          'Số tiền cần đóng(VNĐ):' + dongGop.khoanPhi.soTien,
+        );
+      }
+      if (
+        soTienDongGop < dongGop.soTienDongGop &&
+        dongGop.khoanPhi.loaiPhi == LoaiPhi.UngHo
+      ) {
+        return createError(
+          'Input',
+          'Số tiền tối thiểu cần đóng(VNĐ):' + dongGop.khoanPhi.soTien,
+        );
+      }
+      if (dongGop.khoanPhi.ngayHetHan < ngayNop)
+        return createError('Input', 'Đã quá hạn nộp đóng góp này');
       // chỉnh sửa lại thông tin đóng góp
       dongGop.soTienDongGop = soTienDongGop;
       dongGop.trangThai = true;
@@ -227,6 +271,7 @@ export class DongGopService {
           },
           relations: {
             nguoiTamTru: true,
+            khoanPhi: true,
           },
         });
         return {
@@ -240,6 +285,10 @@ export class DongGopService {
             hoKhau: {
               id: nguoiHienTai.hoKhauId,
             },
+          },
+          relations: {
+            khoanPhi: true,
+            hoKhau: true,
           },
         });
         return {
