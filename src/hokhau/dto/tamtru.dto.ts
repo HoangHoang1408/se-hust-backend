@@ -29,7 +29,7 @@ export class xemDanhSachTamTruOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })
   paginationOutput?: PaginationOutput;
 
-  @Field(() => TamTru, { nullable: true })
+  @Field(() => [TamTru], { nullable: true })
   tamTru?: TamTru[];
 }
 

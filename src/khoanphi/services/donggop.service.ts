@@ -4,12 +4,14 @@ import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
 import { TamTru } from 'src/hokhau/entity/tamtru.entity';
+import { User } from 'src/user/entities/user.entity';
 import { ILike, Repository } from 'typeorm';
 import {
   AddDongGopInput,
   AddDongGopOutput,
   EditDongGopInput,
   EditDongGopOutput,
+  xemDanhSachDongGopChoNguoiDungOutput,
   xemDanhSachDongGopChoNguoiQuanLiInput,
   xemDanhSachDongGopChoNguoiQuanLiOutput,
 } from '../dtos/donggop.dto';
@@ -28,6 +30,8 @@ export class DongGopService {
     private readonly hokhauRepo: Repository<HoKhau>,
     @InjectRepository(KhoanPhi)
     private readonly khoanphiRepo: Repository<KhoanPhi>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   //    thêm đóng góp
@@ -38,6 +42,9 @@ export class DongGopService {
       const nguoitamtru = await this.tamtruRepo.findOne({
         where: {
           id: nguoiTamTruId,
+        },
+        relations: {
+          nguoiTamTru: true,
         },
       });
       const hokhau = await this.hokhauRepo.findOne({
@@ -60,12 +67,16 @@ export class DongGopService {
             hoKhau: {
               id: hoKhauId,
             },
+            
             khoanPhi: {
               id: KhoanPhiId,
             },
           },
+          relations: {
+            hoKhau: true,
+          },
         });
-        if (donggop)
+        if(donggop)
           return createError(
             'Input',
             'Khoản đóng góp của người này đã được thêm vào',
@@ -130,7 +141,7 @@ export class DongGopService {
       // chỉnh sửa lại thông tin đóng góp
       dongGop.soTienDongGop = soTienDongGop;
       dongGop.trangThai = true;
-      dongGop.ngayNop = new Date(ngayNop);
+      dongGop.ngayNop = ngayNop;
       this.donggopRepo.save(dongGop);
       return {
         ok: true,
@@ -151,7 +162,7 @@ export class DongGopService {
         tenKhoanPhi,
         trangThai,
         sohoKhau,
-        canCuocCongDan,
+        // canCuocCongDan,
       } = input;
       const [dongGop, totalResults] = await this.donggopRepo.findAndCount({
         where: {
@@ -159,15 +170,21 @@ export class DongGopService {
             tenKhoanPhi: tenKhoanPhi ? ILike(`%${tenKhoanPhi}%`) : undefined,
             loaiPhi: loaiPhi || undefined,
           },
+
           trangThai,
           hoKhau: {
             soHoKhau: sohoKhau ? ILike(`%${sohoKhau}%`) : undefined,
           },
-          nguoiTamTru: {
-            canCuocCongDan: canCuocCongDan
-              ? ILike(`%${canCuocCongDan}%`)
-              : undefined,
-          },
+
+          // nguoiTamTru: {
+          //   canCuocCongDan: canCuocCongDan
+          //     ? ILike(`%${canCuocCongDan}%`)
+          //     : undefined,
+          // },
+        },
+        relations: {
+          hoKhau: true,
+          nguoiTamTru: true,
         },
         skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
         take: resultsPerPage, // lấy bao nhiêu bản ghi
@@ -184,6 +201,52 @@ export class DongGopService {
           totalPages: Math.ceil(totalResults / resultsPerPage),
         },
       };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+  //xem danh sách  đóng góp dành cho quản lý
+  async xemDanhSachDongGopChoNguoiDung(
+    nguoiHienTai: User,
+  ): Promise<xemDanhSachDongGopChoNguoiDungOutput> {
+    try {
+      const nguoiTamTru = await this.tamtruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: nguoiHienTai.id,
+          },
+        },
+      });
+
+      if (nguoiTamTru) {
+        const dongGop = await this.donggopRepo.find({
+          where: {
+            nguoiTamTru: {
+              id: nguoiTamTru.id,
+            },
+          },
+          relations: {
+            nguoiTamTru: true,
+          },
+        });
+        return {
+          ok: true,
+          DongGop: dongGop,
+        };
+      }
+      if (nguoiHienTai.hoKhauId) {
+        const dongGop = await this.donggopRepo.find({
+          where: {
+            hoKhau: {
+              id: nguoiHienTai.hoKhauId,
+            },
+          },
+        });
+        return {
+          ok: true,
+          DongGop: dongGop,
+        };
+      }
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');
     }

@@ -14,10 +14,12 @@ import { User } from '../../user/entities/user.entity';
 @ObjectType()
 @Entity()
 export class TamTru extends CoreEntity {
+  @Field()
   @ManyToOne(() => User)
   @JoinColumn()
   nguoiPheDuyet: User;
 
+  @Field()
   @OneToOne(() => User)
   @JoinColumn()
   nguoiTamTru: User;

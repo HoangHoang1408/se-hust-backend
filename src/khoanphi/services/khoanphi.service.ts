@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
 import { TamTru } from 'src/hokhau/entity/tamtru.entity';
+import { TamVang } from 'src/hokhau/entity/tamvang.entity';
 import { User } from 'src/user/entities/user.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Not, Repository } from 'typeorm';
 import {
   AddKhoanPhiInput,
   AddKhoanPhiOutput,
@@ -26,6 +27,10 @@ export class KhoanPhiService {
     private readonly hokhauRepo: Repository<HoKhau>,
     @InjectRepository(TamTru)
     private readonly tamtruRepo: Repository<TamTru>,
+    @InjectRepository(TamVang)
+    private readonly tamvangRepo: Repository<TamVang>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     @InjectRepository(DongGop)
     private readonly donggopRepo: Repository<DongGop>,
   ) {}
@@ -55,18 +60,54 @@ export class KhoanPhiService {
         return createError('Input', 'Ngày hết hạn đang sớm hơn ngày phát động');
       let dongGop = [];
       if (loaiPhi == LoaiPhi.BatBuoc) {
-        const hokhau = await this.hokhauRepo.find();
-        const tamtru = await this.tamtruRepo.find();
-        hokhau.forEach((hk) => {
+        const hokhau = await this.hokhauRepo.find({
+          relations: {
+            // thanhVien: true,
+            soHoKhau:true,
+          },
+        });
+        const tamtru = await this.tamtruRepo.find({
+          relations: {
+            nguoiTamTru:{
+              canCuocCongDan:true,
+            }
+          },
+        });
+        const tamtruIdUser = tamtru.map((tt) => tt.nguoiTamTru.id);
+        const tamtru2 = await this.userRepo.find({
+          where: {
+            id: In(tamtruIdUser),
+          },
+        });
+        for (const hk of hokhau) {
+          const tvId = hk.thanhVien.map((tv) => tv.id);
+          const tamvang = await this.tamvangRepo.find({
+            where: {
+              nguoiTamVang: {
+                id: In(tvId),
+              },
+              // ngayHetHan:Not(null),
+            },
+          });
+          const thanhVienHk = await this.userRepo.find({
+            where: {
+              hoKhau: {
+                id: hk.id,
+              },
+            },
+            relations: {
+              hoKhau: true,
+            },
+          });
           dongGop.push(
             this.donggopRepo.create({
               hoKhau: hk,
-              soTienDongGop: soTien,
+              soTienDongGop: soTien * (thanhVienHk.length - 0),
               trangThai: false,
             }),
           );
-        });
-        tamtru.forEach((tt) => {
+        }
+        tamtru2.forEach((tt) => {
           dongGop.push(
             this.donggopRepo.create({
               nguoiTamTru: tt,
@@ -110,10 +151,36 @@ export class KhoanPhiService {
           id: input.khoanPhiId,
         },
       });
+      var tongtien = 0;
+      var nDaDong = 0;
+      var nChuaDong = 0;
       if (!khoanphi) return createError('Input', 'Khoản phí này không tồn tại');
+      const donggop = await this.donggopRepo.find({
+        where: {
+          khoanPhi: {
+            id: input.khoanPhiId,
+          },
+        },
+        relations: {
+          hoKhau: true,
+          nguoiTamTru: true,
+        },
+      });
+      donggop.forEach((dg) => {
+        if (dg.trangThai) {
+          tongtien = tongtien + dg.soTienDongGop;
+          nDaDong++;
+        } else {
+          nChuaDong++;
+        }
+      });
       return {
         ok: true,
         khoanphi,
+        donggop,
+        tongtien,
+        nDaDong,
+        nChuaDong,
       };
     } catch (error) {
       return createError('Server', 'Lỗi server, thử lại sau');

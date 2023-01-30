@@ -91,6 +91,9 @@ export class TamTruService {
               : undefined,
           },
         },
+        relations:{
+          nguoiTamTru:true,
+        }
       });
 
       const idTamTru = tamTru.map((tv) => tv.id);

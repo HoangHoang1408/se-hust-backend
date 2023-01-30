@@ -101,7 +101,7 @@ export class HokhauResolver {
   }
 
   @Query(() => XemDanhSachHoKhauOutput)
-  @Roles(['ToTruong', 'ToPho'])
+  @Roles(['ToTruong', 'ToPho','KeToan'])
   xemDanhSachHoKhau(@Args('input') input: XemDanhSachHoKhauInput) {
     return this.hoKhauService.xemDanhSachHoKhau(input);
   }

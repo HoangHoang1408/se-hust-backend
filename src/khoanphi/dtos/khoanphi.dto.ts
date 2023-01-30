@@ -4,6 +4,7 @@ import {
   PaginationInput,
   PaginationOutput,
 } from 'src/common/dto/output.dto';
+import { DongGop } from '../entities/donggop.entity';
 import { KhoanPhi, LoaiPhi } from '../entities/khoanphi.entity';
 
 @InputType()
@@ -27,6 +28,14 @@ export class XemKhoanPhiChiTietChoQuanLiInput {
 export class XemKhoanPhiChiTietChoQuanLiOutput extends CoreOutput {
   @Field(() => KhoanPhi, { nullable: true })
   khoanphi?: KhoanPhi;
+  @Field(() => [DongGop], { nullable: true })
+  donggop?: DongGop[];
+  @Field()
+  tongtien?:number;
+  @Field()
+  nDaDong?:number;
+  @Field()
+  nChuaDong?:number;
 }
 @InputType()
 export class xemDanhSachKhoanPhiChoNguoiQuanLiInput {
