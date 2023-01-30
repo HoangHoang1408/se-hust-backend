@@ -163,7 +163,7 @@ export class DongGopService {
         return createError('Input', 'Khoản đóng góp này chưa tồn tại');
       //kiểm tra số tiền đóng góp có phù hợp hay không
       if (
-        soTienDongGop != dongGop.soTienDongGop &&
+        soTienDongGop != dongGop.khoanPhi.soTien &&
         dongGop.khoanPhi.loaiPhi == LoaiPhi.BatBuoc
       ) {
         return createError(
