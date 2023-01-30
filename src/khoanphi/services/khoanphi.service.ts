@@ -62,18 +62,15 @@ export class KhoanPhiService {
       if (loaiPhi == LoaiPhi.BatBuoc) {
         const hokhau = await this.hokhauRepo.find({
           relations: {
-            // thanhVien: true,
-            soHoKhau:true,
+            thanhVien: true,
           },
         });
         const tamtru = await this.tamtruRepo.find({
           relations: {
-            nguoiTamTru:{
-              canCuocCongDan:true,
-            }
+            nguoiTamTru: true,
           },
         });
-        const tamtruIdUser = tamtru.map((tt) => tt.nguoiTamTru.id);
+        const tamtruIdUser = tamtru.map((tt) => tt.nguoiTamTru?.id);
         const tamtru2 = await this.userRepo.find({
           where: {
             id: In(tamtruIdUser),
@@ -86,7 +83,7 @@ export class KhoanPhiService {
               nguoiTamVang: {
                 id: In(tvId),
               },
-              ngayHetHieuLuc:Not(null),
+              ngayHetHieuLuc: Not(null),
             },
           });
           const thanhVienHk = await this.userRepo.find({
@@ -136,6 +133,7 @@ export class KhoanPhiService {
         ok: true,
       };
     } catch (error) {
+      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
