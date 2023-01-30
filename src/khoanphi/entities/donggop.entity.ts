@@ -2,6 +2,7 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsIn } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { HoKhau } from 'src/hokhau/entity/hokhau.entity';
+import { TamTru } from 'src/hokhau/entity/tamtru.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { KhoanPhi } from './khoanphi.entity';
@@ -19,7 +20,7 @@ export class DongGop extends CoreEntity {
   nguoiTamTru?: User;
 
   @Field({ nullable: true })
-  @ManyToOne(() => HoKhau, { nullable: true })
+  @ManyToOne(() => HoKhau ,{ nullable: true })
   hoKhau?: HoKhau;
 
   @Field()

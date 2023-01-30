@@ -7,7 +7,7 @@ import { User } from '../../user/entities/user.entity';
 @ObjectType()
 @Entity()
 export class TamTru extends CoreEntity {
-  @Field(() => User)
+  @Field()
   @ManyToOne(() => User)
   nguoiPheDuyet: User;
 

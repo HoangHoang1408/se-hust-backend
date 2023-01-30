@@ -29,7 +29,7 @@ export class TamTruResolver {
     return this.tamTruService.addTamTru(nguoiPheDuyet, input);
   }
   @Query(() => XemDanhSachTamTruOutput)
-  @Roles(['ToPho', 'ToTruong'])
+  @Roles(['ToPho', 'ToTruong','KeToan'])
   xemDanhSachTamTru(@Args('input') input: XemDanhSachTamTruInput) {
     return this.tamTruService.xemDanhSachTamTru(input);
   }

@@ -4,6 +4,7 @@ import {
   PaginationInput,
   PaginationOutput,
 } from 'src/common/dto/output.dto';
+import { User } from 'src/user/entities/user.entity';
 import { DongGop } from '../entities/donggop.entity';
 import { LoaiPhi } from '../entities/khoanphi.entity';
 
@@ -33,7 +34,7 @@ export class EditDongGopInput {
   soTienDongGop: number;
 
   @Field()
-  ngayNop: string;
+  ngayNop: Date;
 }
 @ObjectType()
 export class EditDongGopOutput extends CoreOutput {}
@@ -41,7 +42,7 @@ export class EditDongGopOutput extends CoreOutput {}
 @InputType()
 export class xemDanhSachDongGopChoNguoiQuanLiInput {
   @Field(() => PaginationInput)
-  paginationInput: PaginationInput;
+  paginationInput?: PaginationInput;
 
   @Field({ nullable: true })
   tenKhoanPhi?: string;
@@ -64,6 +65,11 @@ export class xemDanhSachDongGopChoNguoiQuanLiOutput extends CoreOutput {
   @Field(() => PaginationOutput, { nullable: true })
   paginationOutput?: PaginationOutput;
 
+  @Field(() => [DongGop], { nullable: true })
+  DongGop?: DongGop[];
+}
+@ObjectType()
+export class xemDanhSachDongGopChoNguoiDungOutput extends CoreOutput {
   @Field(() => [DongGop], { nullable: true })
   DongGop?: DongGop[];
 }

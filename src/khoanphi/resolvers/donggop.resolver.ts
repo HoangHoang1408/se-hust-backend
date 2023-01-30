@@ -1,10 +1,13 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Roles } from 'src/auth/role.decorator';
+import { CurrentUser } from 'src/auth/user.decorator';
+import { User } from 'src/user/entities/user.entity';
 import {
   AddDongGopInput,
   AddDongGopOutput,
   EditDongGopInput,
   EditDongGopOutput,
+  xemDanhSachDongGopChoNguoiDungOutput,
   xemDanhSachDongGopChoNguoiQuanLiInput,
   xemDanhSachDongGopChoNguoiQuanLiOutput,
 } from '../dtos/donggop.dto';
@@ -33,5 +36,12 @@ export class DongGopResolver {
     @Args('input') input: xemDanhSachDongGopChoNguoiQuanLiInput,
   ) {
     return this.DongGopService.xemDanhSachDongGopChoNguoiQuanLi(input);
+  }
+  @Query(() => xemDanhSachDongGopChoNguoiDungOutput)
+  @Roles(['Any'])
+  xemDanhSachDongGopChoNguoiDung(
+    @CurrentUser() nguoiHienTai: User,
+  ) {
+    return this.DongGopService.xemDanhSachDongGopChoNguoiDung(nguoiHienTai);
   }
 }
