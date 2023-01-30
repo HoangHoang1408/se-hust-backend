@@ -17,13 +17,13 @@ import { LichSuHoKhau } from './hokhau/entity/lichsuhokhau.entity';
 import { TamTru } from './hokhau/entity/tamtru.entity';
 import { TamVang } from './hokhau/entity/tamvang.entity';
 import { HokhauModule } from './hokhau/hokhau.module';
+import { DongGop } from './khoanphi/entities/donggop.entity';
+import { KhoanPhi } from './khoanphi/entities/khoanphi.entity';
+import { KhoanPhiModule } from './khoanphi/khoanphi.module';
 import { SMSModule } from './sms/sms.module';
 import { UploadModule } from './upload/upload.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
-import { KhoanPhiModule } from './khoanphi/khoanphi.module';
-import { KhoanPhi } from './khoanphi/entities/khoanphi.entity';
-import { DongGop } from './khoanphi/entities/donggop.entity';
 
 @Module({
   imports: [
@@ -59,7 +59,11 @@ import { DongGop } from './khoanphi/entities/donggop.entity';
         return { req, res, [ACCESS_TOKEN]: req.get(ACCESS_TOKEN) };
       },
       cors: {
-        origin: [process.env.CLIENT_DOMAIN, process.env.DEV_DOMAIN="http://localhost:5173"],
+        origin: [
+          process.env.CLIENT_DOMAIN,
+          process.env.DEV_DOMAIN,
+          process.env.DEV_DOMAIN_2,
+        ],
         credentials: true,
       },
     }),
@@ -87,7 +91,15 @@ import { DongGop } from './khoanphi/entities/donggop.entity';
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
           }),
-      entities: [User, HoKhau, LichSuHoKhau, TamTru, TamVang,KhoanPhi,DongGop],
+      entities: [
+        User,
+        HoKhau,
+        LichSuHoKhau,
+        TamTru,
+        TamVang,
+        KhoanPhi,
+        DongGop,
+      ],
       synchronize: true,
       ...(process.env.NODE_ENV === 'production'
         ? {

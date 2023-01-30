@@ -89,3 +89,27 @@ export class XemDanhSachNguoiDungOutput extends CoreOutput {
   @Field(() => [User], { nullable: true })
   users?: User[];
 }
+
+@ObjectType()
+export class ThongKeUserOuput extends CoreOutput {
+  @Field(() => Number, { nullable: true })
+  soNguoiDangKi?: number;
+
+  @Field(() => Number, { nullable: true })
+  soNguoiDangKiTamTru?: number;
+
+  @Field(() => Number, { nullable: true })
+  soNguoiDangKiTamVang?: number;
+
+  @Field(() => Number, { nullable: true })
+  soHo?: number;
+  
+  @Field(() => Number, { nullable: true })
+  soNguoiDuoiLaoDong?: number;
+
+  @Field(() => Number, { nullable: true })
+  soNguoiTrongLaoDong?: number;
+
+  @Field(() => Number, { nullable: true })
+  soNguoiTrenLaoDong?: number;
+}

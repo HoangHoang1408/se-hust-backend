@@ -65,7 +65,7 @@ export class HokhauResolver {
   ) {
     return this.hoKhauService.tachHoKhau(nguoiPheDuyet, input);
   }
-  
+
   @Mutation(() => ThemNguoiVaoHoKhauOutput)
   @Roles(['ToTruong', 'ToPho'])
   themNguoiVaoHoKhau(

@@ -87,7 +87,6 @@ export class AuthService {
         accessToken,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
@@ -156,7 +155,6 @@ export class AuthService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Server', 'Lỗi server, thử lại sau');
     }
   }

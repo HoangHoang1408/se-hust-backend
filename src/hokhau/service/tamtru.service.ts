@@ -1,16 +1,20 @@
+import { CurrentUser } from 'src/auth/user.decorator';
+import { XemThongTinTamTruOutput } from './../dto/tamtru.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
 import { User } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, IsNull, Repository } from 'typeorm';
 import {
   AddTamTruInput,
   AddTamTruOutput,
-  suaThongTinTamTruInput,
-  suaThongTinTamTruOutput,
-  xemDanhSachTamTruInput,
-  xemDanhSachTamTruOutput,
+  HetTamTruInput,
+  HetTamTruOutput,
+  SuaThongTinTamTruInput,
+  SuaThongTinTamTruOutput,
+  XemDanhSachTamTruInput,
+  XemDanhSachTamTruOutput,
 } from '../dto/tamtru.dto';
 import { TamTru } from '../entity/tamtru.entity';
 @Injectable()
@@ -35,6 +39,12 @@ export class TamTruService {
       if (!user)
         return createError('Input', 'Người này đang chưa thêm vào khu dân phố');
 
+      //kiểm tra người này có phải chủ hộ không
+      if (user.vaiTroThanhVien == 'Chủ hộ')
+        return createError(
+          'Input',
+          'Người này là chủ hộ, Hãy thay đổi vai trò thành viên',
+        );
       // kiểm tra người này có phải đã có hổ khẩu cư trú ở đây chưa
       if (user.hoKhauId)
         return createError(
@@ -48,6 +58,7 @@ export class TamTruService {
           nguoiTamTru: {
             id: nguoiTamTruId,
           },
+          ngayHetHieuLuc: IsNull(),
         },
       });
       const now = new Date();
@@ -56,7 +67,8 @@ export class TamTruService {
         now.getMonth(),
         now.getDate(),
       );
-      if (tamtru) return createError('Input', 'Người này đã được thêm tạm trú');
+      if (tamtru)
+        return createError('Input', 'Người này đang tạm trú trong khu dân cư');
 
       await this.tamTruRepo.save(
         this.tamTruRepo.create({
@@ -70,49 +82,38 @@ export class TamTruService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
     }
   }
   async xemDanhSachTamTru(
-    input: xemDanhSachTamTruInput,
-  ): Promise<xemDanhSachTamTruOutput> {
+    input: XemDanhSachTamTruInput,
+  ): Promise<XemDanhSachTamTruOutput> {
     try {
       const {
         paginationInput: { page, resultsPerPage },
         canCuocCongDan,
       } = input;
-
-      const tamTru = await this.tamTruRepo.find({
+      const [tamTru, totalResults] = await this.tamTruRepo.findAndCount({
         where: {
           nguoiTamTru: {
             canCuocCongDan: canCuocCongDan
               ? ILike(`%${canCuocCongDan}%`)
               : undefined,
           },
+          ngayHetHieuLuc: IsNull(),
         },
-        relations:{
-          nguoiTamTru:true,
-        }
-      });
-
-      const idTamTru = tamTru.map((tv) => tv.id);
-      const [TamTru, totalResults] = await this.tamTruRepo.findAndCount({
-        where: [
-          {
-            id: In(idTamTru),
-          },
-        ],
-        skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
-        take: resultsPerPage, // lấy bao nhiêu bản ghi
+        relations: {
+          nguoiTamTru: true,
+        },
+        skip: (page - 1) * resultsPerPage,
+        take: resultsPerPage,
         order: {
           updatedAt: SortOrder.DESC,
-        }, // sắp xếp theo giá trị của trường cụ thể tuỳ mọi người truyền vào sao cho hợp lệ
+        },
       });
-
       return {
         ok: true,
-        tamTru: tamTru,
+        tamTru,
         paginationOutput: {
           totalResults,
           totalPages: Math.ceil(totalResults / resultsPerPage),
@@ -125,10 +126,10 @@ export class TamTruService {
 
   async suaThongTinTamTru(
     nguoiPheDuyet: User,
-    input: suaThongTinTamTruInput,
-  ): Promise<suaThongTinTamTruOutput> {
+    input: SuaThongTinTamTruInput,
+  ): Promise<SuaThongTinTamTruOutput> {
     try {
-      const { nguoiYeuCauId, bangTamTruId, noiTamTruMoi } = input;
+      const { nguoiYeuCauId, noiTamTruMoi } = input;
 
       const userYeuCau = await this.userRepo.findOne({
         where: { id: nguoiYeuCauId },
@@ -146,20 +147,20 @@ export class TamTruService {
         );
 
       const tamTru = await this.tamTruRepo.findOne({
-        where: { id: bangTamTruId },
-        select: ['nguoiTamTru', 'id'],
+        where: {
+          nguoiTamTru: {
+            id: nguoiYeuCauId,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+        select: ['nguoiTamTru', 'id', 'noiTamTruHienTai'],
         relations: ['nguoiTamTru'],
       });
+
       if (!tamTru)
         return createError(
           'Input',
-          'Thông tin id của bảng tạm trú sai hoặc không tồn tại!',
-        );
-
-      if (userYeuCau.id !== tamTru.nguoiTamTru.id)
-        return createError(
-          'Input',
-          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
+          'Người yêu cầu chưa đăng ký tạm trú hoặc đã hết hạn tạm trú!',
         );
 
       const now = new Date();
@@ -169,6 +170,7 @@ export class TamTruService {
         now.getDate(),
       );
 
+      tamTru.ghiChu = `Thay đổi thông tin tạm trú từ: ${tamTru.noiTamTruHienTai} đến ${noiTamTruMoi}`;
       tamTru.nguoiPheDuyet = nguoiPheDuyet;
       tamTru.noiTamTruHienTai = noiTamTruMoi;
       tamTru.ngayHetHanTamTru = next_year;
@@ -178,8 +180,80 @@ export class TamTruService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+
+  //Cập nhật lại khi người đó không tạm trú nữa
+  async hetTamTru(
+    nguoiPheDuyet: User,
+    input: HetTamTruInput,
+  ): Promise<HetTamTruOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm trú không
+      const TamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: nguoiYeuCauId,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+      });
+      if (!TamTru)
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký hoặc đã hết hiệu lực tạm trú!',
+        );
+      //cập nhật tình trạng tạm trú
+      TamTru.ngayHetHieuLuc = new Date();
+      TamTru.nguoiPheDuyet = nguoiPheDuyet;
+      await this.tamTruRepo.save(TamTru);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
+    }
+  }
+
+  async xemThongTinTamTru(currentUser: User): Promise<XemThongTinTamTruOutput> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: currentUser.id },
+        select: ['id'],
+      });
+
+      const tamTru = await this.tamTruRepo.findOne({
+        where: {
+          nguoiTamTru: {
+            id: user.id,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+        relations: {
+          nguoiTamTru: true,
+          nguoiPheDuyet: true,
+        },
+      });
+      if (!tamTru)
+        return createError('Input', 'Bạn chưa đăng ký tạm trú hoặc đã hết hạn');
+      return {
+        ok: true,
+        tamTru,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }

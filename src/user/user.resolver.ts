@@ -10,6 +10,7 @@ import {
   XemDanhSachNguoiDungOutput,
   XemThongTinNguoiDungChoQuanLiInput,
   XemThongTinNguoiDungOutput,
+  ThongKeUserOuput,
 } from './dto/user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -49,5 +50,10 @@ export class UserResolver {
   xemDanhSachNguoiDung(@Args('input') input: XemDanhSachNguoiDungInput) {
     return this.userService.xemDanhSachNguoiDung(input);
   }
-}
 
+  @Query(() => ThongKeUserOuput)
+  @Roles(['ToTruong', 'ToPho'])
+  thongKeUser() {
+    return this.userService.thongKeUser();
+  }
+}

@@ -16,7 +16,7 @@ import {
   xemDanhSachDongGopChoNguoiQuanLiOutput,
 } from '../dtos/donggop.dto';
 
-import { DongGop } from '../entities/DongGop.entity';
+import { DongGop } from '../entities/donggop.entity';
 import { KhoanPhi } from '../entities/khoanphi.entity';
 
 @Injectable()

@@ -2,15 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SortOrder } from 'src/common/entities/core.entity';
 import { createError } from 'src/common/utils/createError';
-import { User } from 'src/user/entities/user.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { User, VaiTroThanhVien } from 'src/user/entities/user.entity';
+import { ILike, IsNull, Not, Repository } from 'typeorm';
 import {
   AddTamVangInput,
   AddTamVangOutput,
-  suaThongTinTamVangInput,
-  suaThongTinTamVangOutput,
-  xemDanhSachTamVangInput,
-  xemDanhSachTamVangOutput,
+  HetTamVangInput,
+  HetTamVangOutput,
+  SuaThongTinTamVangInput,
+  SuaThongTinTamVangOutput,
+  XemDanhSachTamVangInput,
+  XemDanhSachTamVangOutput,
 } from '../dto/tamvang.dto';
 import { HoKhau } from '../entity/hokhau.entity';
 import { HanhDongHoKhau, LichSuHoKhau } from '../entity/lichsuhokhau.entity';
@@ -43,7 +45,7 @@ export class TamVangService {
         return createError('Input', 'Người này không có trong khu dân phố');
 
       // kiểm tra người này có phải chủ hộ hay không
-      if (user.vaiTroThanhVien == 'Chủ hộ')
+      if (user.vaiTroThanhVien == VaiTroThanhVien.ChuHo)
         return createError(
           'input',
           'Cần chuyển vai trò thành viên của người này',
@@ -61,10 +63,10 @@ export class TamVangService {
           nguoiTamVang: {
             id: user.id,
           },
+          ngayHetHieuLuc: Not(null),
         },
       });
-      if (TamVang)
-        return createError('Input', 'Người này đã được thêm tạm vắng');
+      if (TamVang) return createError('Input', 'Người này đang tạm vắng');
 
       // ghi chú trong hộ khẩu người này đã tạm vắng tại khu dân phố
       // lưu lịch sử tạm vắng trong bảng lịch sử hộ khẩu
@@ -91,6 +93,7 @@ export class TamVangService {
           ngayBatDauTamVang: new Date(),
           lyDoTamVang,
           diaChiNoiDen,
+          ngayHetHieuLuc: null,
         }),
       );
       return {
@@ -101,15 +104,15 @@ export class TamVangService {
     }
   }
   async xemDanhSachTamVang(
-    input: xemDanhSachTamVangInput,
-  ): Promise<xemDanhSachTamVangOutput> {
+    input: XemDanhSachTamVangInput,
+  ): Promise<XemDanhSachTamVangOutput> {
     try {
       const {
         paginationInput: { page, resultsPerPage },
         canCuocCongDan,
       } = input;
 
-      const tamVang = await this.TamVangRepo.find({
+      const [tamVang, totalResults] = await this.TamVangRepo.findAndCount({
         where: {
           nguoiTamVang: {
             canCuocCongDan: canCuocCongDan
@@ -117,15 +120,9 @@ export class TamVangService {
               : undefined,
           },
         },
-      });
-
-      const idTamVang = tamVang.map((tv) => tv.id);
-      const [TamVang, totalResults] = await this.TamVangRepo.findAndCount({
-        where: [
-          {
-            id: In(idTamVang),
-          },
-        ],
+        relations: {
+          nguoiTamVang: true,
+        },
         skip: (page - 1) * resultsPerPage, // bỏ qua bao nhiêu bản ghi
         take: resultsPerPage, // lấy bao nhiêu bản ghi
         order: {
@@ -148,33 +145,30 @@ export class TamVangService {
 
   async suaThongTinTamVang(
     nguoiPheDuyet: User,
-    input: suaThongTinTamVangInput,
-  ): Promise<suaThongTinTamVangOutput> {
+    input: SuaThongTinTamVangInput,
+  ): Promise<SuaThongTinTamVangOutput> {
     try {
-      const { nguoiYeuCauId, bangTamVangId, lyDoTamVang, diaChiNoiDenMoi } =
-        input;
+      const { nguoiYeuCauId, lyDoTamVang, diaChiNoiDenMoi } = input;
 
       const userYeuCau = await this.userRepo.findOne({
         where: { id: nguoiYeuCauId },
       });
 
+      if (!userYeuCau)
+        return createError('Input', 'Người yêu cầu không tồn tại');
+
       const tamVang = await this.TamVangRepo.findOne({
-        where: { id: bangTamVangId },
-        select: ['nguoiTamVang', 'id'],
+        where: {
+          nguoiTamVang: {
+            id: nguoiYeuCauId,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+        select: ['nguoiTamVang', 'id', 'diaChiNoiDen'],
         relations: ['nguoiTamVang'],
       });
-
       if (!tamVang)
-        return createError(
-          'Input',
-          'Thông tin id của bảng tạm vắng sai hoặc không tồn tại!',
-        );
-
-      if (userYeuCau.id !== tamVang.nguoiTamVang.id)
-        return createError(
-          'Input',
-          'Không thể thực hiện yêu cầu do id của người yêu cầu sai!',
-        );
+        return createError('Input', 'Người yêu cầu không đăng ký tạm vắng!');
 
       tamVang.lyDoTamVang = lyDoTamVang;
       tamVang.diaChiNoiDen = diaChiNoiDenMoi;
@@ -186,8 +180,60 @@ export class TamVangService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
       return createError('Input', 'Lỗi server,thử lại sau');
+    }
+  }
+  //Cập nhật lại tình trạng khi có yêu cầu hết tạm vắng
+  async hetTamVang(
+    nguoiPheDuyet: User,
+    input: HetTamVangInput,
+  ): Promise<HetTamVangOutput> {
+    try {
+      const { nguoiYeuCauId } = input;
+
+      //kiểm tra người yêu cầu đã trong khu dân cư chưa
+      const nguoiYeuCau = await this.userRepo.findOne({
+        where: {
+          id: nguoiYeuCauId,
+        },
+      });
+      if (!nguoiYeuCau)
+        return createError('Input', 'Người yêu cầu không có trong khu dân cư');
+
+      //Kiểm tra người yêu cầu có hộ khẩu cư trú không
+      if (!nguoiYeuCau.hoKhauId)
+        return createError(
+          'Input',
+          'Người này không có hộ khẩu cư trú trong khu dân cư',
+        );
+      //kiểm tra người yêu cầu có đang trong tình trạng tạm vắng không
+      const TamVang = await this.TamVangRepo.findOne({
+        where: {
+          nguoiTamVang: {
+            id: nguoiYeuCau.id,
+          },
+          ngayHetHieuLuc: IsNull(),
+        },
+      });
+      if (!TamVang)
+        return createError(
+          'Input',
+          'Người yêu cầu chưa đăng ký tạm vắng hoặc đã kết thúc tạm vắng!',
+        );
+
+      const hoKhau = await this.hokhauRepo.findOne({
+        where: { id: nguoiYeuCau.hoKhauId },
+      });
+      //cập nhật tình trạng tạm vắng
+      TamVang.ngayHetHieuLuc = new Date();
+      TamVang.nguoiPheDuyet = nguoiPheDuyet;
+      await this.TamVangRepo.save(TamVang);
+      await this.hokhauRepo.save(hoKhau);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return createError('Server', 'Lỗi server, thử lại sau');
     }
   }
 }
