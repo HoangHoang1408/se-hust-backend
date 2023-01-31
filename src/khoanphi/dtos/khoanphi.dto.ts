@@ -21,7 +21,7 @@ export class AddKhoanPhiOutput extends CoreOutput {}
 
 @InputType()
 export class XemKhoanPhiChiTietChoQuanLiInput {
-  @Field(() => ID)
+  @Field()
   khoanPhiId: number;
 }
 @ObjectType()

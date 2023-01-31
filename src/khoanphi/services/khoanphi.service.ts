@@ -161,6 +161,7 @@ export class KhoanPhiService {
         relations: {
           hoKhau: true,
           nguoiTamTru: true,
+          khoanPhi:true,
         },
       });
       donggop.forEach((dg) => {

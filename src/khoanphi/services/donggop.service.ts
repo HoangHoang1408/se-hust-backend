@@ -60,12 +60,15 @@ export class DongGopService {
         where: {
           id: hoKhauId,
         },
+        
       });
       const khoanphi = await this.khoanphiRepo.findOne({
         where: {
           id: KhoanPhiId,
         },
       });
+      if (khoanphi.ngayHetHan < new Date())
+        return createError('Input', 'Hết thời hạn nộp đóng góp');
       if (!khoanphi) return createError('Input', 'Khoản phí này không tồn tại');
       if (!hokhau && !nguoitamtru)
         return createError('Input', 'Người tạm trú hoặc hộ khẩu không tồn tại');
